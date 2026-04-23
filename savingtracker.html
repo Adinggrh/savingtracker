@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Saving Tracker - Digiteraa</title>
+    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        :root {
+            --bg: #f7f6f3;
+            --surface: #ffffff;
+            --border: #e8e4dc;
+            --text: #1a1916;
+            --muted: #9c9789;
+            --accent: #2a2118;
+            --green: #16a34a;
+            --green-bg: #f0fdf4;
+            --red: #dc2626;
+            --red-bg: #fef2f2;
+            --tag: #f0ede6;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Geist Mono', monospace;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            padding: 32px 20px 80px;
+        }
+
+        .wrap { max-width: 560px; margin: 0 auto; }
+
+        /* LOADING SCREEN */
+        #loading-screen {
+            position: fixed; inset: 0; background: var(--bg);
+            display: flex; align-items: center; justify-content: center; z-index: 1000;
+        }
+
+        /* AUTH SECTION */
+        .auth-container {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px;
+            margin-top: 50px;
+        }
+
+        /* HEADER */
+        .header { margin-bottom: 40px; animation: up 0.5s ease both; display: flex; justify-content: space-between; align-items: flex-start; }
+        .header-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
+        .header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; line-height: 1.1; }
+        .header h1 em { font-style: italic; color: var(--muted); }
+        .logout-btn { font-size: 10px; color: var(--red); cursor: pointer; border: none; background: none; font-family: inherit; }
+
+        /* HERO DASHBOARD */
+        .hero-card {
+            background: var(--accent); border-radius: 20px; padding: 28px; color: #f7f6f3;
+            margin-bottom: 16px; display: flex; align-items: center; gap: 28px;
+            animation: up 0.5s 0.1s ease both; position: relative; overflow: hidden;
+        }
+        .hero-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border: 1px solid rgba(247,246,243,0.08); border-radius: 50%; }
+        
+        .ring-wrap { flex-shrink: 0; position: relative; width: 88px; height: 88px; }
+        .ring-wrap svg { transform: rotate(-90deg); }
+        .ring-bg { fill: none; stroke: rgba(247,246,243,0.1); stroke-width: 5; }
+        .ring-fill { fill: none; stroke: #a8f0c8; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 245; stroke-dashoffset: 245; transition: stroke-dashoffset 1s ease; }
+        .ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: #a8f0c8; }
+
+        .hero-stats { flex: 1; }
+        .hero-main { font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1; margin-bottom: 4px; }
+        .hero-sub { font-size: 11px; color: rgba(247,246,243,0.5); margin-bottom: 16px; }
+        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        .hero-item-val { font-size: 13px; font-weight: 500; color: #f7f6f3; }
+        .hero-item-label { font-size: 10px; color: rgba(247,246,243,0.4); letter-spacing: 0.06em; }
+
+        /* CARDS & INPUTS */
+        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 12px; animation: up 0.5s 0.15s ease both; }
+        .card-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
+        
+        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
+        label { font-size: 10px; text-transform: uppercase; color: var(--muted); }
+        input { font-family: 'Geist Mono', monospace; font-size: 13px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); width: 100%; outline: none; }
+        
+        .btn { font-family: 'Geist Mono', monospace; font-size: 12px; padding: 12px; border-radius: 10px; border: none; cursor: pointer; width: 100%; transition: 0.2s; }
+        .btn-primary { background: var(--accent); color: #f7f6f3; }
+        .btn-ghost { background: var(--tag); color: var(--text); margin-top: 8px; }
+
+        /* HISTORY */
+        .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
+        .tx-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
+        .tx-info { flex: 1; }
+        .tx-note { font-size: 13px; }
+        .tx-date { font-size: 10px; color: var(--muted); }
+        .tx-amount { font-size: 13px; font-weight: 500; color: var(--green); }
+        .tx-del { background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); cursor: pointer; padding: 2px 8px; }
+
+        .hidden { display: none !important; }
+        @keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    </style>
+</head>
+<body>
+
+<div id="loading-screen">Memuat...</div>
+
+<div class="wrap">
+    <div id="auth-section" class="hidden">
+        <div class="header">
+            <div>
+                <div class="header-label">Akses Akun</div>
+                <h1>Masuk ke<br><em>Tracker.</em></h1>
+            </div>
+        </div>
+        <div class="auth-container">
+            <div class="input-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="email@kamu.com">
+            </div>
+            <div class="input-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="••••••••">
+            </div>
+            <button class="btn btn-primary" onclick="handleLogin()">Masuk</button>
+            <button class="btn btn-ghost" onclick="handleRegister()">Daftar Akun Baru</button>
+        </div>
+    </div>
+
+    <div id="main-dashboard" class="hidden">
+        <div class="header">
+            <div>
+                <div class="header-label" id="user-display">User</div>
+                <h1>Saving<br><em>Tracker.</em></h1>
+            </div>
+            <button class="logout-btn" onclick="handleLogout()">KELUAR</button>
+        </div>
+
+        <div class="hero-card">
+            <div class="ring-wrap">
+                <svg width="88" height="88" viewBox="0 0 88 88">
+                    <circle class="ring-bg" cx="44" cy="44" r="39"/>
+                    <circle id="ring" class="ring-fill" cx="44" cy="44" r="39"/>
+                </svg>
+                <div class="ring-pct" id="pct-label">0%</div>
+            </div>
+            <div class="hero-stats">
+                <div class="hero-main" id="h-collected">Rp 0</div>
+                <div class="hero-sub">dari target <span id="h-goal">Rp 0</span></div>
+                <div class="hero-grid">
+                    <div class="hero-item">
+                        <div class="hero-item-val" id="h-sisa">Rp 0</div>
+                        <div class="hero-item-label">Sisa</div>
+                    </div>
+                    <div class="hero-item">
+                        <div class="hero-item-val" id="h-days">— hari</div>
+                        <div class="hero-item-label">Waktu</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-title">⚙ Konfigurasi Target</div>
+            <div class="input-group">
+                <label>Target Nominal (Rp)</label>
+                <input type="number" id="goal-input" placeholder="Contoh: 5000000">
+            </div>
+            <div class="input-group">
+                <label>Deadline</label>
+                <input type="date" id="deadline-input">
+            </div>
+            <button class="btn btn-primary" onclick="updateGoal()">Simpan Perubahan</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">+ Tambah Tabungan</div>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
+                <div class="input-group" style="margin-bottom:0">
+                    <label>Nominal</label>
+                    <input type="number" id="amount-input" placeholder="Rp">
+                </div>
+                <div class="input-group" style="margin-bottom:0">
+                    <label>Catatan</label>
+                    <input type="text" id="note-input" placeholder="Nabung">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addTransaction()">Simpan Transaksi</button>
+        </div>
+
+        <div class="card">
+            <div class="card-title">Riwayat Transaksi</div>
+            <div id="transaction-list"></div>
+        </div>
+    </div>
+</div>
+<script>
+    const SUPABASE_URL = "https://lxquockcvcduelikjjox.supabase.co";
+    const SUPABASE_ANON_KEY = "sb_publishable_wkwVh1JOZETaneX2ddhIrA_QhIafDvA";
+
+    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    let currentUser = null;
+    let myGoal = 0;
+
+    async function init() {
+        const { data: { session } } = await sb.auth.getSession();
+        updateUI(session?.user);
+        
+        sb.auth.onAuthStateChange((_event, session) => {
+            updateUI(session?.user);
+        });
+    }
+
+    function updateUI(user) {
+        document.getElementById('loading-screen').classList.add('hidden');
+        if (user) {
+            currentUser = user;
+            document.getElementById('auth-section').classList.add('hidden');
+            document.getElementById('main-dashboard').classList.remove('hidden');
+            document.getElementById('user-display').innerText = user.email;
+            loadData();
+        } else {
+            currentUser = null;
+            document.getElementById('auth-section').classList.remove('hidden');
+            document.getElementById('main-dashboard').classList.add('hidden');
+        }
+    }
+
+    // --- AUTH Tetap Sama ---
+    async function handleRegister() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if(!email || !password) return alert("Isi email dan password");
+        const { error } = await sb.auth.signUp({ email, password });
+        if (error) alert(error.message); else alert("Daftar berhasil! Silakan login.");
+    }
+
+    async function handleLogin() {
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const { error } = await sb.auth.signInWithPassword({ email, password });
+        if (error) alert(error.message);
+    }
+
+    async function handleLogout() { await sb.auth.signOut(); }
+
+    // --- PERBAIKAN PADA MANAJEMEN DATA ---
+    async function loadData() {
+        if (!currentUser) return;
+
+        // 1. Load Goal
+        const { data: goalData, error: gError } = await sb.from('saving_goals')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .maybeSingle();
+
+        if (goalData) {
+            myGoal = parseInt(goalData.goal) || 0;
+            document.getElementById('goal-input').value = myGoal;
+            document.getElementById('deadline-input').value = goalData.deadline || '';
+            document.getElementById('h-goal').innerText = 'Rp ' + myGoal.toLocaleString('id-ID');
+            
+            if (goalData.deadline) {
+                const sisaHari = Math.ceil((new Date(goalData.deadline) - new Date()) / (1000 * 60 * 60 * 24));
+                document.getElementById('h-days').innerText = (sisaHari > 0 ? sisaHari : 0) + ' hari';
+            }
+        }
+
+        // 2. Load Transactions
+        const { data: txs } = await sb.from('transactions')
+            .select('*')
+            .eq('user_id', currentUser.id)
+            .order('created_at', { ascending: false });
+
+        const list = document.getElementById('transaction-list');
+        list.innerHTML = '';
+        let total = 0;
+
+        if (txs) {
+            txs.forEach(item => {
+                const amt = parseInt(item.amount) || 0;
+                total += amt;
+                const date = new Date(item.created_at).toLocaleDateString('id-ID');
+                list.innerHTML += `
+                    <div class="tx-item">
+                        <div class="tx-dot"></div>
+                        <div class="tx-info">
+                            <div class="tx-note">${item.note || 'Nabung'}</div>
+                            <div class="tx-date">${date}</div>
+                        </div>
+                        <div class="tx-amount">+Rp${amt.toLocaleString('id-ID')}</div>
+                        <button class="tx-del" onclick="deleteTx('${item.id}')">✕</button>
+                    </div>`;
+            });
+        }
+
+        // 3. Update Tampilan
+        document.getElementById('h-collected').innerText = 'Rp ' + total.toLocaleString('id-ID');
+        document.getElementById('h-sisa').innerText = 'Rp ' + Math.max(0, myGoal - total).toLocaleString('id-ID');
+        
+        const pct = myGoal > 0 ? Math.min(100, Math.round((total / myGoal) * 100)) : 0;
+        const circumference = 245;
+        document.getElementById('ring').style.strokeDashoffset = circumference - (pct / 100) * circumference;
+        document.getElementById('pct-label').innerText = pct + '%';
+    }
+
+    async function updateGoal() {
+        const goalVal = document.getElementById('goal-input').value;
+        const deadlineVal = document.getElementById('deadline-input').value;
+        
+        if (!goalVal) return alert("Masukkan nominal target");
+
+        // Perbaikan: Gunakan upsert dengan onConflict agar data tidak duplikat
+        const { error } = await sb.from('saving_goals').upsert({ 
+            user_id: currentUser.id, 
+            goal: parseInt(goalVal), 
+            deadline: deadlineVal, 
+            email: currentUser.email 
+        }, { onConflict: 'user_id' });
+
+        if (error) {
+            console.error(error);
+            alert("Gagal simpan: " + error.message);
+        } else {
+            alert("Target disimpan!");
+            loadData();
+        }
+    }
+
+    async function addTransaction() {
+        const amountVal = document.getElementById('amount-input').value;
+        const noteVal = document.getElementById('note-input').value;
+        
+        if (!amountVal) return alert("Masukkan nominal tabungan");
+
+        const { error } = await sb.from('transactions').insert([{ 
+            user_id: currentUser.id, 
+            amount: parseInt(amountVal), 
+            note: noteVal || 'Nabung' 
+        }]);
+
+        if (error) {
+            alert("Gagal catat transaksi: " + error.message);
+        } else {
+            document.getElementById('amount-input').value = '';
+            document.getElementById('note-input').value = '';
+            loadData();
+        }
+    }
+
+    async function deleteTx(id) {
+        if (confirm("Hapus transaksi ini?")) {
+            await sb.from('transactions').delete().eq('id', id);
+            loadData();
+        }
+    }
+
+    init();
+</script>
+</body>
+</html>
