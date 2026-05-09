@@ -1,362 +1,1123 @@
 <!DOCTYPE html>
-<html lang="id">
+<html lang="id" data-theme="light">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>Saving Tracker - Digiteraa</title>
-    <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <style>
-        :root {
-            --bg: #f7f6f3;
-            --surface: #ffffff;
-            --border: #e8e4dc;
-            --text: #1a1916;
-            --muted: #9c9789;
-            --accent: #2a2118;
-            --green: #16a34a;
-            --green-bg: #f0fdf4;
-            --red: #dc2626;
-            --red-bg: #fef2f2;
-            --tag: #f0ede6;
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Saving Tracker</title>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist+Mono:wght@300;400;500&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root{
+  --bg:#f7f6f3;--surface:#fff;--surface2:#f0ede6;--border:#e8e4dc;
+  --text:#1a1916;--muted:#9c9789;--accent:#2a2118;--accent-text:#f7f6f3;
+  --green:#16a34a;--green-bg:#f0fdf4;--green-border:#bbf7d0;
+  --red:#dc2626;--red-bg:#fef2f2;--red-border:#fecaca;
+  --tag:#f0ede6;--shadow:0 2px 12px rgba(0,0,0,0.06);
+  --chart-grid:rgba(0,0,0,0.05);--chart-text:#9c9789;
+}
+[data-theme="dark"]{
+  --bg:#0e0d0c;--surface:#1a1916;--surface2:#222018;--border:#2e2b25;
+  --text:#f0ede6;--muted:#5a5750;--accent:#f0ede6;--accent-text:#1a1916;
+  --green:#4ade80;--green-bg:#052e16;--green-border:#166534;
+  --red:#f87171;--red-bg:#450a0a;--red-border:#991b1b;
+  --tag:#2e2b25;--shadow:0 2px 12px rgba(0,0,0,0.3);
+  --chart-grid:rgba(255,255,255,0.04);--chart-text:#5a5750;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:'Geist Mono',monospace;background:var(--bg);color:var(--text);min-height:100vh;transition:background .3s,color .3s}
+button{cursor:pointer;font-family:'Geist Mono',monospace}
+input,select{font-family:'Geist Mono',monospace}
 
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+/* ─── LAYOUT ─── */
+.wrap{max-width:580px;margin:0 auto;padding:28px 18px 100px}
+.view{display:none}.view.active{display:block}
 
-        body {
-            font-family: 'Geist Mono', monospace;
-            background: var(--bg);
-            color: var(--text);
-            min-height: 100vh;
-            padding: 32px 20px 80px;
-        }
+/* ─── LOADING ─── */
+#loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
+.loader{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
 
-        .wrap { max-width: 560px; margin: 0 auto; }
+/* ─── HEADER ─── */
+.top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;animation:up .4s ease both}
+.top-bar-left{display:flex;align-items:center;gap:10px}
+.back-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:11px;color:var(--text);transition:.2s}
+.back-btn:hover{background:var(--border)}
+.top-bar-right{display:flex;align-items:center;gap:8px}
+.icon-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;transition:.2s;color:var(--text)}
+.icon-btn:hover{background:var(--border)}
+.streak-badge{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:11px;display:flex;align-items:center;gap:5px}
 
-        /* LOADING SCREEN */
-        #loading-screen {
-            position: fixed; inset: 0; background: var(--bg);
-            display: flex; align-items: center; justify-content: center; z-index: 1000;
-        }
+/* ─── PAGE TITLE ─── */
+.page-title{margin-bottom:28px;animation:up .4s .05s ease both}
+.page-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
+.page-h1{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;line-height:1.1}
+.page-h1 em{font-style:italic;color:var(--muted)}
 
-        /* AUTH SECTION */
-        .auth-container {
-            background: var(--surface);
-            border: 1px solid var(--border);
-            border-radius: 20px;
-            padding: 32px;
-            margin-top: 50px;
-        }
+/* ─── AUTH ─── */
+.auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;animation:up .4s ease both}
+.auth-tabs{display:flex;gap:6px;margin-bottom:24px}
+.auth-tab{flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);transition:.2s}
+.auth-tab.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 
-        /* HEADER */
-        .header { margin-bottom: 40px; animation: up 0.5s ease both; display: flex; justify-content: space-between; align-items: flex-start; }
-        .header-label { font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); margin-bottom: 8px; }
-        .header h1 { font-family: 'Instrument Serif', serif; font-size: 36px; font-weight: 400; line-height: 1.1; }
-        .header h1 em { font-style: italic; color: var(--muted); }
-        .logout-btn { font-size: 10px; color: var(--red); cursor: pointer; border: none; background: none; font-family: inherit; }
+/* ─── FORM ─── */
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
+.field label{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
+.field input,.field select{font-size:13px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);outline:none;transition:border-color .2s;width:100%}
+.field input:focus,.field select:focus{border-color:var(--muted)}
+.field input::placeholder{color:var(--muted)}
+.input-display{font-size:11px;color:var(--muted);margin-top:3px}
 
-        /* HERO DASHBOARD */
-        .hero-card {
-            background: var(--accent); border-radius: 20px; padding: 28px; color: #f7f6f3;
-            margin-bottom: 16px; display: flex; align-items: center; gap: 28px;
-            animation: up 0.5s 0.1s ease both; position: relative; overflow: hidden;
-        }
-        .hero-card::before { content: ''; position: absolute; top: -40px; right: -40px; width: 160px; height: 160px; border: 1px solid rgba(247,246,243,0.08); border-radius: 50%; }
-        
-        .ring-wrap { flex-shrink: 0; position: relative; width: 88px; height: 88px; }
-        .ring-wrap svg { transform: rotate(-90deg); }
-        .ring-bg { fill: none; stroke: rgba(247,246,243,0.1); stroke-width: 5; }
-        .ring-fill { fill: none; stroke: #a8f0c8; stroke-width: 5; stroke-linecap: round; stroke-dasharray: 245; stroke-dashoffset: 245; transition: stroke-dashoffset 1s ease; }
-        .ring-pct { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 14px; font-weight: 500; color: #a8f0c8; }
+/* ─── BUTTONS ─── */
+.btn{font-size:12px;padding:12px 16px;border-radius:10px;border:none;transition:.2s;width:100%}
+.btn-primary{background:var(--accent);color:var(--accent-text)}
+.btn-primary:hover{opacity:.88}
+.btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
+.btn-ghost:hover{background:var(--border)}
+.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
+.btn-sm{padding:7px 12px;font-size:11px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);width:auto;transition:.2s}
+.btn-sm:hover{background:var(--border)}
 
-        .hero-stats { flex: 1; }
-        .hero-main { font-family: 'Instrument Serif', serif; font-size: 28px; line-height: 1; margin-bottom: 4px; }
-        .hero-sub { font-size: 11px; color: rgba(247,246,243,0.5); margin-bottom: 16px; }
-        .hero-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .hero-item-val { font-size: 13px; font-weight: 500; color: #f7f6f3; }
-        .hero-item-label { font-size: 10px; color: rgba(247,246,243,0.4); letter-spacing: 0.06em; }
+/* ─── GOAL GRID ─── */
+.goals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
+@media(max-width:420px){.goals-grid{grid-template-columns:1fr}}
+.goal-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:.2s;animation:up .4s ease both}
+.goal-card:hover{border-color:var(--muted);transform:translateY(-1px);box-shadow:var(--shadow)}
+.goal-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
+.goal-emoji{font-size:24px;line-height:1}
+.goal-pct-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--green-bg);color:var(--green)}
+.goal-title{font-size:13px;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-amounts{font-size:11px;color:var(--muted);margin-bottom:10px}
+.goal-amounts strong{color:var(--text);font-size:13px}
+.goal-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
+.goal-bar-fill{height:100%;background:var(--green);border-radius:4px;transition:width 1s ease}
+.goal-deadline{font-size:10px;color:var(--muted)}
+.add-goal-card{border:1.5px dashed var(--border);border-radius:16px;padding:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;font-size:12px;color:var(--muted);transition:.2s;background:transparent;width:100%}
+.add-goal-card:hover{border-color:var(--muted);color:var(--text)}
 
-        /* CARDS & INPUTS */
-        .card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 12px; animation: up 0.5s 0.15s ease both; }
-        .card-title { font-size: 10px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); margin-bottom: 16px; }
-        
-        .input-group { display: flex; flex-direction: column; gap: 5px; margin-bottom: 15px; }
-        label { font-size: 10px; text-transform: uppercase; color: var(--muted); }
-        input { font-family: 'Geist Mono', monospace; font-size: 13px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); width: 100%; outline: none; }
-        
-        .btn { font-family: 'Geist Mono', monospace; font-size: 12px; padding: 12px; border-radius: 10px; border: none; cursor: pointer; width: 100%; transition: 0.2s; }
-        .btn-primary { background: var(--accent); color: #f7f6f3; }
-        .btn-ghost { background: var(--tag); color: var(--text); margin-top: 8px; }
+/* ─── HERO CARD ─── */
+.hero-card{background:var(--accent);border-radius:20px;padding:26px;color:var(--accent-text);margin-bottom:12px;display:flex;align-items:center;gap:24px;animation:up .4s .1s ease both;position:relative;overflow:hidden}
+.hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border:1px solid rgba(247,246,243,.08);border-radius:50%}
+.ring-wrap{flex-shrink:0;position:relative;width:80px;height:80px}
+.ring-wrap svg{transform:rotate(-90deg)}
+.ring-bg{fill:none;stroke:rgba(247,246,243,.12);stroke-width:5}
+.ring-fill{fill:none;stroke:#a8f0c8;stroke-width:5;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 1.2s ease}
+.ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#a8f0c8}
+.hero-main-val{font-family:'Instrument Serif',serif;font-size:26px;line-height:1;margin-bottom:3px}
+.hero-sub{font-size:10px;color:rgba(247,246,243,.5);margin-bottom:14px}
+.hero-row{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.hero-item-val{font-size:12px;font-weight:500}
+.hero-item-label{font-size:9px;color:rgba(247,246,243,.4);letter-spacing:.06em;margin-top:1px}
 
-        /* HISTORY */
-        .tx-item { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid var(--border); }
-        .tx-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--green); }
-        .tx-info { flex: 1; }
-        .tx-note { font-size: 13px; }
-        .tx-date { font-size: 10px; color: var(--muted); }
-        .tx-amount { font-size: 13px; font-weight: 500; color: var(--green); }
-        .tx-del { background: none; border: 1px solid var(--border); border-radius: 5px; color: var(--muted); cursor: pointer; padding: 2px 8px; }
+/* ─── HINT / INSIGHT CARD ─── */
+.hint-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;animation:up .4s .15s ease both;display:flex;align-items:flex-start;gap:12px}
+.hint-icon{font-size:20px;flex-shrink:0}
+.hint-text{font-size:12px;line-height:1.6;color:var(--muted)}
+.hint-text strong{color:var(--text)}
 
-        .hidden { display: none !important; }
-        @keyframes up { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-    </style>
+/* ─── SUMMARY BAR ─── */
+.summary-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;animation:up .4s .12s ease both}
+.sum-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
+.sum-val{font-size:13px;font-weight:500;margin-bottom:2px}
+.sum-val.plus{color:var(--green)}.sum-val.minus{color:var(--red)}
+.sum-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
+
+/* ─── CHART CARD ─── */
+.chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;animation:up .4s .18s ease both}
+.chart-tabs{display:flex;gap:6px;margin-bottom:16px}
+.chart-tab{padding:7px 14px;border-radius:8px;font-size:11px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:.2s}
+.chart-tab.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.chart-panel{display:none}.chart-panel.active{display:block}
+.chart-canvas-wrap{position:relative;height:180px}
+
+/* ─── CARD ─── */
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:12px;animation:up .4s .2s ease both}
+.card-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+
+/* ─── TYPE TOGGLE ─── */
+.type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:4px;margin-bottom:14px}
+.toggle-opt{padding:9px;border-radius:8px;border:none;font-size:11px;font-weight:500;background:transparent;color:var(--muted);transition:.2s}
+.toggle-opt.on-plus{background:var(--green-bg);color:var(--green)}
+.toggle-opt.on-minus{background:var(--red-bg);color:var(--red)}
+
+/* ─── CATEGORIES ─── */
+.cat-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
+.cat-pill{padding:6px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:.2s}
+.cat-pill:hover{border-color:var(--muted)}
+.cat-pill.selected{border-color:var(--accent);background:var(--accent);color:var(--accent-text)}
+[data-theme="dark"] .cat-pill.selected{background:var(--surface2);color:var(--text);border-color:var(--text)}
+
+/* ─── EMOJI PICKER ─── */
+.emoji-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
+.emoji-opt{font-size:22px;padding:8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);transition:.2s;line-height:1}
+.emoji-opt:hover{border-color:var(--muted)}
+.emoji-opt.selected{border-color:var(--accent);background:var(--tag)}
+
+/* ─── TRANSACTIONS ─── */
+.tx-list{display:flex;flex-direction:column;gap:0}
+.tx-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
+.tx-item:last-child{border-bottom:none}
+.tx-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+.tx-dot.p{background:var(--green)}.tx-dot.m{background:var(--red)}
+.tx-info{flex:1;min-width:0}
+.tx-note{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-meta{font-size:10px;color:var(--muted);margin-top:2px}
+.tx-cat{display:inline-block;padding:1px 6px;border-radius:4px;background:var(--tag);font-size:9px;color:var(--muted);margin-left:4px;letter-spacing:.04em;text-transform:uppercase}
+.tx-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
+.tx-amount{font-size:12px;font-weight:500}
+.tx-amount.p{color:var(--green)}.tx-amount.m{color:var(--red)}
+.tx-edit{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);padding:3px 7px;font-size:10px;transition:.2s}
+.tx-edit:hover{background:var(--border)}
+
+/* ─── EMPTY STATE ─── */
+.empty{text-align:center;padding:32px 16px}
+.empty-icon{font-size:36px;margin-bottom:10px}
+.empty-title{font-size:13px;color:var(--text);margin-bottom:5px}
+.empty-sub{font-size:11px;color:var(--muted)}
+
+/* ─── FAB ─── */
+.fab{position:fixed;bottom:28px;right:50%;transform:translateX(calc(50% + 270px));background:var(--accent);color:var(--accent-text);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:.2s;z-index:100}
+@media(max-width:620px){.fab{right:20px;transform:none}}
+.fab:hover{transform:translateX(calc(50% + 270px)) scale(1.05)}
+@media(max-width:620px){.fab:hover{transform:scale(1.05)}}
+
+/* ─── MODAL ─── */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
+.modal-overlay.open{display:flex;animation:fadeIn .2s ease}
+.modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:580px;max-height:88vh;overflow-y:auto;animation:slideUp .3s ease}
+.modal-handle{width:36px;height:3px;background:var(--border);border-radius:3px;margin:0 auto 20px;display:block}
+.modal-title{font-size:14px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.modal-close{background:none;border:none;font-size:18px;color:var(--muted)}
+.col-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+
+/* ─── INSIGHT MODAL ─── */
+.insight-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;font-size:12px;line-height:1.6;display:flex;gap:10px}
+.insight-loading{text-align:center;padding:32px;color:var(--muted);font-size:12px}
+
+/* ─── TOAST ─── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-text);padding:10px 20px;border-radius:12px;font-size:12px;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1}
+
+/* ─── DARK MODE TRANSITION ─── */
+.theme-transition *{transition:background .3s,color .3s,border-color .3s!important}
+
+/* ─── ANIMATIONS ─── */
+@keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
+
+/* ─── PRINT ─── */
+@media print{
+  .fab,.icon-btn,.back-btn,.tx-edit,.type-toggle,.modal-overlay,#toast{display:none!important}
+  body{background:#fff;color:#000}
+  .hero-card{background:#000;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .chart-card{page-break-inside:avoid}
+}
+</style>
 </head>
 <body>
 
-<div id="loading-screen">Memuat...</div>
-
-<div class="wrap">
-    <div id="auth-section" class="hidden">
-        <div class="header">
-            <div>
-                <div class="header-label">Akses Akun</div>
-                <h1>Masuk ke<br><em>Tracker.</em></h1>
-            </div>
-        </div>
-        <div class="auth-container">
-            <div class="input-group">
-                <label>Email</label>
-                <input type="email" id="email" placeholder="email@kamu.com">
-            </div>
-            <div class="input-group">
-                <label>Password</label>
-                <input type="password" id="password" placeholder="••••••••">
-            </div>
-            <button class="btn btn-primary" onclick="handleLogin()">Masuk</button>
-            <button class="btn btn-ghost" onclick="handleRegister()">Daftar Akun Baru</button>
-        </div>
-    </div>
-
-    <div id="main-dashboard" class="hidden">
-        <div class="header">
-            <div>
-                <div class="header-label" id="user-display">User</div>
-                <h1>Saving<br><em>Tracker.</em></h1>
-            </div>
-            <button class="logout-btn" onclick="handleLogout()">KELUAR</button>
-        </div>
-
-        <div class="hero-card">
-            <div class="ring-wrap">
-                <svg width="88" height="88" viewBox="0 0 88 88">
-                    <circle class="ring-bg" cx="44" cy="44" r="39"/>
-                    <circle id="ring" class="ring-fill" cx="44" cy="44" r="39"/>
-                </svg>
-                <div class="ring-pct" id="pct-label">0%</div>
-            </div>
-            <div class="hero-stats">
-                <div class="hero-main" id="h-collected">Rp 0</div>
-                <div class="hero-sub">dari target <span id="h-goal">Rp 0</span></div>
-                <div class="hero-grid">
-                    <div class="hero-item">
-                        <div class="hero-item-val" id="h-sisa">Rp 0</div>
-                        <div class="hero-item-label">Sisa</div>
-                    </div>
-                    <div class="hero-item">
-                        <div class="hero-item-val" id="h-days">— hari</div>
-                        <div class="hero-item-label">Waktu</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="card">
-            <div class="card-title">⚙ Konfigurasi Target</div>
-            <div class="input-group">
-                <label>Target Nominal (Rp)</label>
-                <input type="number" id="goal-input" placeholder="Contoh: 5000000">
-            </div>
-            <div class="input-group">
-                <label>Deadline</label>
-                <input type="date" id="deadline-input">
-            </div>
-            <button class="btn btn-primary" onclick="updateGoal()">Simpan Perubahan</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">+ Tambah Tabungan</div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px;">
-                <div class="input-group" style="margin-bottom:0">
-                    <label>Nominal</label>
-                    <input type="number" id="amount-input" placeholder="Rp">
-                </div>
-                <div class="input-group" style="margin-bottom:0">
-                    <label>Catatan</label>
-                    <input type="text" id="note-input" placeholder="Nabung">
-                </div>
-            </div>
-            <button class="btn btn-primary" onclick="addTransaction()">Simpan Transaksi</button>
-        </div>
-
-        <div class="card">
-            <div class="card-title">Riwayat Transaksi</div>
-            <div id="transaction-list"></div>
-        </div>
-    </div>
+<!-- LOADING -->
+<div id="loading">
+  <div class="loader"></div>
+  <span style="font-size:11px;color:var(--muted)">Memuat...</span>
 </div>
+
+<!-- ════════════════════════════════ VIEW: AUTH ════════════════════════════════ -->
+<div id="v-auth" class="view">
+<div class="wrap">
+  <div class="page-title" style="margin-top:40px">
+    <div class="page-label">Selamat Datang</div>
+    <h1 class="page-h1">Masuk ke<br><em>Tracker.</em></h1>
+  </div>
+  <div class="auth-box">
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="tab-login" onclick="switchAuthTab('login')">Masuk</button>
+      <button class="auth-tab" id="tab-reg" onclick="switchAuthTab('reg')">Daftar</button>
+    </div>
+    <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="email@kamu.com"></div>
+    <div class="field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••"></div>
+    <button class="btn btn-primary" id="auth-submit" onclick="doAuth()">Masuk</button>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════ VIEW: DASHBOARD ════════════════════════════════ -->
+<div id="v-dash" class="view">
+<div class="wrap">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <div class="streak-badge" id="streak-badge">🔥 0 hari</div>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" id="theme-btn" onclick="toggleTheme()" title="Dark mode">🌙</button>
+      <button class="icon-btn" onclick="doLogout()" title="Keluar">→</button>
+    </div>
+  </div>
+  <div class="page-title">
+    <div class="page-label" id="dash-user-label">—</div>
+    <h1 class="page-h1">Saving<br><em>Tracker.</em></h1>
+  </div>
+
+  <!-- Goals Grid -->
+  <div class="goals-grid" id="goals-grid">
+    <!-- injected by JS -->
+  </div>
+
+  <button class="add-goal-card" onclick="openGoalModal(null)">
+    <span style="font-size:18px">+</span> Tambah Goal Baru
+  </button>
+</div>
+</div>
+
+<!-- ════════════════════════════════ VIEW: GOAL DETAIL ════════════════════════════════ -->
+<div id="v-goal" class="view">
+<div class="wrap">
+  <div class="top-bar">
+    <div class="top-bar-left">
+      <button class="back-btn" onclick="goBack()">← Kembali</button>
+    </div>
+    <div class="top-bar-right">
+      <button class="icon-btn" onclick="openAIInsight()" title="AI Insight">🤖</button>
+      <button class="icon-btn" onclick="printGoal()" title="Export PDF">📄</button>
+      <button class="icon-btn" onclick="openGoalModal(activeGoal)" title="Edit Goal">✎</button>
+      <button class="icon-btn" id="theme-btn2" onclick="toggleTheme()" title="Dark mode">🌙</button>
+    </div>
+  </div>
+
+  <!-- Hero -->
+  <div class="hero-card" id="goal-hero">
+    <div class="ring-wrap">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-bg" cx="40" cy="40" r="35"/>
+        <circle id="goal-ring" class="ring-fill" cx="40" cy="40" r="35"/>
+      </svg>
+      <div class="ring-pct" id="goal-pct">0%</div>
+    </div>
+    <div style="flex:1">
+      <div id="goal-hero-title" style="font-size:11px;opacity:.5;margin-bottom:4px"></div>
+      <div class="hero-main-val" id="goal-hero-val">Rp 0</div>
+      <div class="hero-sub" id="goal-hero-sub">dari target Rp 0</div>
+      <div class="hero-row">
+        <div><div class="hero-item-val" id="goal-sisa">Rp 0</div><div class="hero-item-label">Sisa</div></div>
+        <div><div class="hero-item-val" id="goal-days">—</div><div class="hero-item-label">Waktu</div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hint -->
+  <div class="hint-card" id="hint-card">
+    <div class="hint-icon">💡</div>
+    <div class="hint-text" id="hint-text">Memuat...</div>
+  </div>
+
+  <!-- Summary -->
+  <div class="summary-bar">
+    <div class="sum-item"><div class="sum-val plus" id="g-masuk">Rp 0</div><div class="sum-label">↑ Total Masuk</div></div>
+    <div class="sum-item"><div class="sum-val minus" id="g-keluar">Rp 0</div><div class="sum-label">↓ Total Keluar</div></div>
+  </div>
+
+  <!-- Charts -->
+  <div class="chart-card">
+    <div class="chart-tabs">
+      <button class="chart-tab active" onclick="switchChart('line',this)">📈 Progress</button>
+      <button class="chart-tab" onclick="switchChart('bar',this)">📊 Bulanan</button>
+    </div>
+    <div class="chart-panel active" id="chart-panel-line">
+      <div class="chart-canvas-wrap"><canvas id="chart-line"></canvas></div>
+    </div>
+    <div class="chart-panel" id="chart-panel-bar">
+      <div class="chart-canvas-wrap"><canvas id="chart-bar"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Transactions -->
+  <div class="card">
+    <div class="card-title">
+      Riwayat Transaksi
+      <span id="tx-count" style="font-weight:400"></span>
+    </div>
+    <div id="tx-list"><div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">Belum ada transaksi</div><div class="empty-sub">Mulai nabung hari ini ✨</div></div></div>
+  </div>
+</div>
+
+<!-- FAB: Add Transaction -->
+<button class="fab" onclick="openTxModal(null)">+</button>
+</div>
+
+<!-- ════════════════════════════════ MODAL: GOAL ════════════════════════════════ -->
+<div class="modal-overlay" id="m-goal">
+<div class="modal-box">
+  <span class="modal-handle"></span>
+  <div class="modal-title">
+    <span id="m-goal-title">Tambah Goal</span>
+    <button class="modal-close" onclick="closeModal('m-goal')">✕</button>
+  </div>
+  <!-- Emoji picker -->
+  <div class="field"><label>Ikon</label>
+    <div class="emoji-wrap" id="emoji-picker">
+      <!-- injected -->
+    </div>
+  </div>
+  <div class="field"><label>Nama Goal</label><input id="g-title" placeholder="Contoh: Sony A7IV"></div>
+  <div class="col-2">
+    <div class="field"><label>Target (Rp)</label><input id="g-amount" type="text" inputmode="numeric" placeholder="0" oninput="fmtInput(this)"><div class="input-display" id="g-amount-display"></div></div>
+    <div class="field"><label>Deadline</label><input id="g-deadline" type="date"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-ghost" style="width:auto;flex:1" id="g-del-btn" onclick="deleteGoal()">Hapus Goal</button>
+    <button class="btn btn-primary" style="flex:2" onclick="saveGoal()">Simpan</button>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════ MODAL: TX ════════════════════════════════ -->
+<div class="modal-overlay" id="m-tx">
+<div class="modal-box">
+  <span class="modal-handle"></span>
+  <div class="modal-title">
+    <span id="m-tx-title">Tambah Transaksi</span>
+    <button class="modal-close" onclick="closeModal('m-tx')">✕</button>
+  </div>
+  <!-- Type toggle -->
+  <div class="type-toggle">
+    <button class="toggle-opt on-plus" id="t-plus" onclick="setTxType('plus')">+ Tambah Saldo</button>
+    <button class="toggle-opt" id="t-minus" onclick="setTxType('minus')">− Kurangi Saldo</button>
+  </div>
+  <!-- Categories -->
+  <div class="field"><label>Kategori</label><div class="cat-wrap" id="cat-pills"></div></div>
+  <!-- Amount + Note -->
+  <div class="col-2">
+    <div class="field"><label>Nominal (Rp)</label><input id="tx-amount" type="text" inputmode="numeric" placeholder="0" oninput="fmtInput(this)"><div class="input-display" id="tx-amount-display"></div></div>
+    <div class="field"><label>Catatan</label><input id="tx-note" type="text" placeholder="Opsional"></div>
+  </div>
+  <div style="display:flex;gap:8px;margin-top:4px">
+    <button class="btn btn-ghost" style="width:auto;flex:1;display:none" id="tx-del-btn" onclick="deleteTx()">Hapus</button>
+    <button class="btn btn-primary" id="tx-save-btn" onclick="saveTx()">Simpan</button>
+  </div>
+</div>
+</div>
+
+<!-- ════════════════════════════════ MODAL: AI INSIGHT ════════════════════════════════ -->
+<div class="modal-overlay" id="m-insight">
+<div class="modal-box">
+  <span class="modal-handle"></span>
+  <div class="modal-title">
+    🤖 Smart Insight AI
+    <button class="modal-close" onclick="closeModal('m-insight')">✕</button>
+  </div>
+  <div id="insight-body">
+    <div class="field"><label>Anthropic API Key</label><input id="insight-key" type="password" placeholder="sk-ant-..."><div class="input-display">Key disimpan lokal di browser kamu</div></div>
+    <button class="btn btn-primary" onclick="runInsight()">Generate Insight</button>
+  </div>
+</div>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
 <script>
-    const SUPABASE_URL = "https://lxquockcvcduelikjjox.supabase.co";
-    const SUPABASE_ANON_KEY = "sb_publishable_wkwVh1JOZETaneX2ddhIrA_QhIafDvA";
+// ══════════════════════════ CONFIG ══════════════════════════
+const SUPABASE_URL = "https://lxquockcvcduelikjjox.supabase.co";
+const SUPABASE_ANON_KEY = "sb_publishable_wkwVh1JOZETaneX2ddhIrA_QhIafDvA";
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ══════════════════════════ STATE ══════════════════════════
+let user = null;
+let goals = [];
+let activeGoal = null;
+let txs = [];
+let editingGoalId = null;
+let editingTxId = null;
+let txType = 'plus';
+let selectedCat = '';
+let selectedEmoji = '🎯';
+let chartLine = null;
+let chartBar = null;
 
-    let currentUser = null;
-    let myGoal = 0;
+// ══════════════════════════ DATA ══════════════════════════
+const EMOJIS = ['🎯','🏍️','📷','🏠','✈️','💍','💻','🎓','🚗','💰','🎮','👜','🏋️','📱','🎸','🌴'];
+const CATS_PLUS  = ['💼 Gaji','💻 Freelance','🎁 Bonus','🛍️ Jualan','🏦 Nabung','📈 Investasi','📝 Lainnya'];
+const CATS_MINUS = ['🍜 Makan','🚗 Transport','🛒 Belanja','🔌 Tagihan','🎮 Hiburan','📝 Lainnya'];
 
-    async function init() {
-        const { data: { session } } = await sb.auth.getSession();
-        updateUI(session?.user);
-        
-        sb.auth.onAuthStateChange((_event, session) => {
-            updateUI(session?.user);
-        });
-    }
+// ══════════════════════════ INIT ══════════════════════════
+async function init() {
+  // Load saved theme
+  const savedTheme = localStorage.getItem('theme') || 'light';
+  document.documentElement.setAttribute('data-theme', savedTheme);
+  updateThemeIcons(savedTheme);
 
-    function updateUI(user) {
-        document.getElementById('loading-screen').classList.add('hidden');
-        if (user) {
-            currentUser = user;
-            document.getElementById('auth-section').classList.add('hidden');
-            document.getElementById('main-dashboard').classList.remove('hidden');
-            document.getElementById('user-display').innerText = user.email;
-            loadData();
-        } else {
-            currentUser = null;
-            document.getElementById('auth-section').classList.remove('hidden');
-            document.getElementById('main-dashboard').classList.add('hidden');
+  const { data: { session } } = await sb.auth.getSession();
+  handleSession(session);
+  sb.auth.onAuthStateChange((_e, s) => handleSession(s));
+}
+
+function handleSession(session) {
+  document.getElementById('loading').style.display = 'none';
+  if (session?.user) {
+    user = session.user;
+    showView('dash');
+    document.getElementById('dash-user-label').textContent = user.email;
+    loadDashboard();
+  } else {
+    user = null;
+    showView('auth');
+  }
+}
+
+// ══════════════════════════ VIEW MANAGER ══════════════════════════
+function showView(name) {
+  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+  document.getElementById('v-' + name).classList.add('active');
+}
+
+function goBack() {
+  activeGoal = null; txs = [];
+  destroyCharts();
+  showView('dash');
+  loadDashboard();
+}
+
+// ══════════════════════════ AUTH ══════════════════════════
+let authMode = 'login';
+function switchAuthTab(mode) {
+  authMode = mode;
+  document.getElementById('tab-login').classList.toggle('active', mode==='login');
+  document.getElementById('tab-reg').classList.toggle('active', mode==='reg');
+  document.getElementById('auth-submit').textContent = mode==='login' ? 'Masuk' : 'Daftar';
+}
+async function doAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  if (!email || !pass) return toast('Isi email dan password');
+  if (authMode === 'login') {
+    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+    if (error) toast(error.message);
+  } else {
+    const { error } = await sb.auth.signUp({ email, password: pass });
+    if (error) toast(error.message); else toast('Daftar berhasil! Silakan masuk.');
+  }
+}
+async function doLogout() { await sb.auth.signOut(); }
+
+// ══════════════════════════ DASHBOARD ══════════════════════════
+async function loadDashboard() {
+
+  console.log("USER:", user);
+
+  const { data: goalData, error: goalErr } = await sb
+    .from('goals')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at');
+
+  console.log("GOAL DATA:", goalData);
+  console.log("GOAL ERROR:", goalErr);
+
+  if (goalErr) {
+    toast(goalErr.message);
+    return;
+  }
+
+  const { data: txData, error: txErr } = await sb
+    .from('transactions')
+    .select('*')
+    .eq('user_id', user.id);
+
+  console.log("TX DATA:", txData);
+  console.log("TX ERROR:", txErr);
+
+  if (txErr) {
+    toast(txErr.message);
+    return;
+  }
+
+  goals = (goalData || []).map(goal => {
+
+    const relatedTx = (txData || []).filter(
+      tx => tx.goal_id === goal.id
+    );
+
+    const totalCollected = relatedTx.reduce(
+      (sum, tx) => sum + tx.amount,
+      0
+    );
+
+    return {
+      ...goal,
+      collected: Math.max(0, totalCollected)
+    };
+  });
+
+  renderGoalCards();
+  await loadStreak();
+}
+
+function renderGoalCards() {
+
+  const grid = document.getElementById('goals-grid');
+
+  // kosongkan isi
+  grid.innerHTML = '';
+
+  // empty state
+  if (!goals.length) {
+
+    grid.innerHTML = `
+      <div class="empty" style="grid-column:1/-1">
+        <div class="empty-icon">🎯</div>
+        <div class="empty-title">Belum ada goal</div>
+        <div class="empty-sub">Yuk buat goal pertama kamu!</div>
+      </div>
+    `;
+
+    return;
+  }
+
+  goals.forEach((g, i) => {
+
+    const collected = g.collected || 0;
+
+    const pct =
+      g.goal_amount > 0
+        ? Math.min(
+            100,
+            Math.round((collected / g.goal_amount) * 100)
+          )
+        : 0;
+
+    const daysLeft = g.deadline
+      ? Math.max(
+          0,
+          Math.ceil(
+            (new Date(g.deadline) - new Date()) / 86400000
+          )
+        )
+      : null;
+
+    const card = document.createElement('div');
+
+    card.className = 'goal-card';
+    card.style.animationDelay = (i * 0.05) + 's';
+
+    card.innerHTML = `
+      <div class="goal-card-top">
+
+        <span class="goal-emoji">
+          ${g.emoji || '🎯'}
+        </span>
+
+        <span class="goal-pct-badge">
+          ${pct}%
+        </span>
+
+      </div>
+
+      <div class="goal-title">
+        ${esc(g.title)}
+      </div>
+
+      <div class="goal-amounts">
+        <strong>${fmt(collected)}</strong>
+        / ${fmt(g.goal_amount)}
+      </div>
+
+      <div class="goal-bar">
+        <div
+          class="goal-bar-fill"
+          style="width:${pct}%"
+        ></div>
+      </div>
+
+      <div class="goal-deadline">
+
+        ${
+          daysLeft !== null
+            ? `📅 ${daysLeft} hari lagi`
+            : '📅 Tanpa deadline'
         }
+
+      </div>
+    `;
+
+    card.onclick = () => openGoal(g);
+
+    grid.appendChild(card);
+  });
+}
+
+async function loadStreak() {
+  const { data } = await sb.from('transactions').select('created_at').eq('user_id', user.id);
+  const streak = calcStreak(data || []);
+  const badge = document.getElementById('streak-badge');
+  badge.textContent = `🔥 ${streak} hari`;
+  badge.title = streak > 0 ? `Konsisten nabung ${streak} hari berturut-turut!` : 'Belum ada streak';
+}
+
+function calcStreak(txList) {
+  if (!txList.length) return 0;
+  const today = new Date(); today.setHours(0,0,0,0);
+  const unique = [...new Set(txList.map(t => {
+    const d = new Date(t.created_at); d.setHours(0,0,0,0); return d.getTime();
+  }))].sort((a,b) => b-a);
+  let streak = 0, check = today.getTime();
+  for (const d of unique) {
+    if (d === check) { streak++; check -= 86400000; }
+    else if (d < check) break;
+  }
+  return streak;
+}
+
+// ══════════════════════════ GOAL DETAIL ══════════════════════════
+async function openGoal(g) {
+  activeGoal = g;
+  showView('goal');
+  document.getElementById('goal-hero-title').textContent = (g.emoji||'🎯') + ' ' + g.title;
+
+  const { data } = await sb.from('transactions').select('*').eq('goal_id', g.id).order('created_at', { ascending: false });
+  txs = data || [];
+
+  // Compute totals
+  let masuk = 0, keluar = 0;
+  txs.forEach(t => { if (t.amount >= 0) masuk += t.amount; else keluar += Math.abs(t.amount); });
+  const net = masuk - keluar;
+  const pct = g.goal_amount > 0 ? Math.min(100, Math.round(net / g.goal_amount * 100)) : 0;
+
+  // Update collected on goal object
+  activeGoal.collected = net;
+
+  // Hero
+  document.getElementById('goal-hero-val').textContent = fmt(Math.max(0, net));
+  document.getElementById('goal-hero-sub').textContent = 'dari target ' + fmt(g.goal_amount);
+  document.getElementById('goal-sisa').textContent = fmt(Math.max(0, g.goal_amount - net));
+  const ring = document.getElementById('goal-ring');
+  ring.style.strokeDashoffset = 220 - (pct/100)*220;
+  document.getElementById('goal-pct').textContent = pct + '%';
+
+  // Days
+  if (g.deadline) {
+    const days = Math.max(0, Math.ceil((new Date(g.deadline) - new Date()) / 86400000));
+    document.getElementById('goal-days').textContent = days + ' hari';
+  } else {
+    document.getElementById('goal-days').textContent = '—';
+  }
+
+  // Summary
+  document.getElementById('g-masuk').textContent = fmt(masuk);
+  document.getElementById('g-keluar').textContent = fmt(keluar);
+
+  // Daily hint
+  renderHint(g, net);
+
+  // Charts
+  renderCharts();
+
+  // Transactions
+  renderTxList();
+}
+
+function renderHint(g, net) {
+  const el = document.getElementById('hint-text');
+  if (!g.deadline || !g.goal_amount) {
+    el.innerHTML = 'Atur deadline dan target untuk mendapat saran harian. 📅';
+    return;
+  }
+  const days = Math.max(1, Math.ceil((new Date(g.deadline) - new Date()) / 86400000));
+  const sisa = Math.max(0, g.goal_amount - net);
+  if (sisa <= 0) {
+    el.innerHTML = '🎉 <strong>Goal tercapai!</strong> Luar biasa, kamu berhasil!';
+    return;
+  }
+  const daily = Math.ceil(sisa / days);
+  const onTrack = (net / g.goal_amount) >= (1 - days / Math.max(1, Math.ceil((new Date(g.deadline) - new Date(g.created_at||new Date())) / 86400000)));
+  el.innerHTML = `Kamu perlu menabung <strong>${fmt(daily)}/hari</strong> untuk mencapai target tepat waktu. ${onTrack ? '👍 Kamu masih on track!' : '⚠️ Perlu sedikit lebih konsisten.'}`;
+}
+
+function renderTxList() {
+  const el = document.getElementById('tx-list');
+  document.getElementById('tx-count').textContent = txs.length ? txs.length + ' transaksi' : '';
+  if (!txs.length) {
+    el.innerHTML = `<div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">Belum ada transaksi</div><div class="empty-sub">Mulai nabung hari ini ✨</div></div>`;
+    return;
+  }
+  el.innerHTML = '';
+  txs.forEach(t => {
+    const isPlus = t.amount >= 0;
+    const item = document.createElement('div');
+    item.className = 'tx-item';
+    item.innerHTML = `
+      <div class="tx-dot ${isPlus?'p':'m'}"></div>
+      <div class="tx-info">
+        <div class="tx-note">${esc(t.note || (isPlus?'Nabung':'Pengeluaran'))}<span class="tx-cat">${esc(t.category||'Lainnya')}</span></div>
+        <div class="tx-meta">${new Date(t.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}</div>
+      </div>
+      <div class="tx-right">
+        <span class="tx-amount ${isPlus?'p':'m'}">${isPlus?'+':'−'}${fmt(Math.abs(t.amount))}</span>
+        <button class="tx-edit" onclick="openTxModal('${t.id}')">✎</button>
+      </div>
+    `;
+    el.appendChild(item);
+  });
+}
+
+// ══════════════════════════ CHARTS ══════════════════════════
+function switchChart(name, btn) {
+  document.querySelectorAll('.chart-tab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.chart-panel').forEach(p => p.classList.remove('active'));
+  btn.classList.add('active');
+  document.getElementById('chart-panel-' + name).classList.add('active');
+}
+
+function destroyCharts() {
+  if (chartLine) { chartLine.destroy(); chartLine = null; }
+  if (chartBar)  { chartBar.destroy();  chartBar  = null; }
+}
+
+function chartColors() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  return {
+    grid: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
+    text: dark ? '#5a5750' : '#9c9789',
+    green: dark ? '#4ade80' : '#16a34a',
+    red:   dark ? '#f87171' : '#dc2626',
+    greenBg: dark ? 'rgba(74,222,128,0.12)' : 'rgba(22,163,74,0.1)',
+  };
+}
+
+function renderCharts() {
+  destroyCharts();
+  const sorted = [...txs].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
+  const c = chartColors();
+
+  // ── LINE: Cumulative balance ──
+  const byDay = {};
+  sorted.forEach(t => { const d = t.created_at.split('T')[0]; byDay[d] = (byDay[d]||0) + t.amount; });
+  const days = Object.keys(byDay).sort();
+  const lineLabels = days.map(d => new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short'}));
+  const lineData = []; let running = 0;
+  days.forEach(d => { running += byDay[d]; lineData.push(Math.max(0, running)); });
+
+  if (!days.length) lineLabels.push('Belum ada data'), lineData.push(0);
+
+  chartLine = new Chart(document.getElementById('chart-line'), {
+    type: 'line',
+    data: {
+      labels: lineLabels,
+      datasets: [{ label: 'Saldo', data: lineData, borderColor: c.green, backgroundColor: c.greenBg, borderWidth: 2, fill: true, tension: 0.4, pointRadius: lineData.length > 10 ? 0 : 4, pointBackgroundColor: c.green }]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + ctx.raw.toLocaleString('id-ID') } } },
+      scales: {
+        x: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, maxTicksLimit: 6 } },
+        y: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, callback: v => fmtK(v) } }
+      }
     }
+  });
 
-    // --- AUTH Tetap Sama ---
-    async function handleRegister() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        if(!email || !password) return alert("Isi email dan password");
-        const { error } = await sb.auth.signUp({ email, password });
-        if (error) alert(error.message); else alert("Daftar berhasil! Silakan login.");
+  // ── BAR: Monthly income vs expense ──
+  const months6 = [];
+  for (let i = 5; i >= 0; i--) { const d = new Date(); d.setMonth(d.getMonth()-i); months6.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); }
+  const mIn = {}, mOut = {};
+  months6.forEach(m => { mIn[m] = 0; mOut[m] = 0; });
+  sorted.forEach(t => { const m = t.created_at.substring(0,7); if (mIn[m] !== undefined) { if (t.amount >= 0) mIn[m] += t.amount; else mOut[m] += Math.abs(t.amount); } });
+  const barLabels = months6.map(m => { const [y,mo] = m.split('-'); return new Date(y,mo-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}); });
+
+  chartBar = new Chart(document.getElementById('chart-bar'), {
+    type: 'bar',
+    data: {
+      labels: barLabels,
+      datasets: [
+        { label: 'Masuk', data: months6.map(m => mIn[m]), backgroundColor: c.green + 'cc', borderRadius: 5 },
+        { label: 'Keluar', data: months6.map(m => mOut[m]), backgroundColor: c.red + 'aa', borderRadius: 5 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { labels: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, boxWidth: 10 } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + ctx.raw.toLocaleString('id-ID') } } },
+      scales: {
+        x: { grid: { display: false }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 } } },
+        y: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, callback: v => fmtK(v) } }
+      }
     }
+  });
+}
 
-    async function handleLogin() {
-        const email = document.getElementById('email').value;
-        const password = document.getElementById('password').value;
-        const { error } = await sb.auth.signInWithPassword({ email, password });
-        if (error) alert(error.message);
-    }
+// ══════════════════════════ GOAL MODAL ══════════════════════════
+function openGoalModal(g) {
+  editingGoalId = g ? g.id : null;
+  document.getElementById('m-goal-title').textContent = g ? 'Edit Goal' : 'Tambah Goal';
+  document.getElementById('g-title').value = g ? g.title : '';
+  document.getElementById('g-deadline').value = g ? (g.deadline||'') : '';
+  document.getElementById('g-del-btn').style.display = g ? 'block' : 'none';
+  selectedEmoji = g ? (g.emoji||'🎯') : '🎯';
 
-    async function handleLogout() { await sb.auth.signOut(); }
+  // Render emoji picker
+  const picker = document.getElementById('emoji-picker');
+  picker.innerHTML = '';
+  EMOJIS.forEach(e => {
+    const btn = document.createElement('button');
+    btn.className = 'emoji-opt' + (e === selectedEmoji ? ' selected' : '');
+    btn.textContent = e;
+    btn.onclick = () => { selectedEmoji = e; picker.querySelectorAll('.emoji-opt').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); };
+    picker.appendChild(btn);
+  });
 
-    // --- PERBAIKAN PADA MANAJEMEN DATA ---
-    async function loadData() {
-        if (!currentUser) return;
+  // Amount
+  const amtInput = document.getElementById('g-amount');
+  amtInput.value = g ? (g.goal_amount||0).toLocaleString('id-ID') : '';
+  amtInput.dataset.raw = g ? (g.goal_amount||0) : '';
+  document.getElementById('g-amount-display').textContent = g ? 'Rp ' + (g.goal_amount||0).toLocaleString('id-ID') : '';
 
-        // 1. Load Goal
-        const { data: goalData, error: gError } = await sb.from('saving_goals')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .maybeSingle();
+  openModal('m-goal');
+}
 
-        if (goalData) {
-            myGoal = parseInt(goalData.goal) || 0;
-            document.getElementById('goal-input').value = myGoal;
-            document.getElementById('deadline-input').value = goalData.deadline || '';
-            document.getElementById('h-goal').innerText = 'Rp ' + myGoal.toLocaleString('id-ID');
-            
-            if (goalData.deadline) {
-                const sisaHari = Math.ceil((new Date(goalData.deadline) - new Date()) / (1000 * 60 * 60 * 24));
-                document.getElementById('h-days').innerText = (sisaHari > 0 ? sisaHari : 0) + ' hari';
-            }
-        }
+async function saveGoal() {
+  const title = document.getElementById('g-title').value.trim();
+  const amount = parseInt(document.getElementById('g-amount').dataset.raw || document.getElementById('g-amount').value.replace(/\D/g,''));
+  const deadline = document.getElementById('g-deadline').value || null;
+  if (!title) return toast('Masukkan nama goal');
+  if (!amount || amount <= 0) return toast('Masukkan target nominal');
 
-        // 2. Load Transactions
-        const { data: txs } = await sb.from('transactions')
-            .select('*')
-            .eq('user_id', currentUser.id)
-            .order('created_at', { ascending: false });
+  const payload = { user_id: user.id, title, emoji: selectedEmoji, goal_amount: amount, deadline };
+  let error;
+  if (editingGoalId) {
+    ({ error } = await sb.from('goals').update(payload).eq('id', editingGoalId));
+  } else {
+    ({ error } = await sb.from('goals').insert([payload]));
+  }
+  if (error) return toast('Gagal: ' + error.message);
+  toast(editingGoalId ? 'Goal diperbarui!' : 'Goal berhasil ditambahkan!');
+  closeModal('m-goal');
+  if (activeGoal && editingGoalId === activeGoal.id) {
+    const { data } = await sb.from('goals').select('*').eq('id', editingGoalId).single();
+    activeGoal = { ...activeGoal, ...data };
+    openGoal(activeGoal);
+  } else {
+    loadDashboard();
+  }
+}
 
-        const list = document.getElementById('transaction-list');
-        list.innerHTML = '';
-        let total = 0;
+async function deleteGoal() {
+  if (!editingGoalId) return;
+  if (!confirm('Hapus goal ini dan semua transaksinya?')) return;
+  await sb.from('goals').delete().eq('id', editingGoalId);
+  toast('Goal dihapus');
+  closeModal('m-goal');
+  goBack();
+}
 
-        if (txs) {
-            txs.forEach(item => {
-                const amt = parseInt(item.amount) || 0;
-                total += amt;
-                const date = new Date(item.created_at).toLocaleDateString('id-ID');
-                list.innerHTML += `
-                    <div class="tx-item">
-                        <div class="tx-dot"></div>
-                        <div class="tx-info">
-                            <div class="tx-note">${item.note || 'Nabung'}</div>
-                            <div class="tx-date">${date}</div>
-                        </div>
-                        <div class="tx-amount">+Rp${amt.toLocaleString('id-ID')}</div>
-                        <button class="tx-del" onclick="deleteTx('${item.id}')">✕</button>
-                    </div>`;
-            });
-        }
+// ══════════════════════════ TX MODAL ══════════════════════════
+function openTxModal(idOrNull) {
+  editingTxId = idOrNull;
+  const tx = typeof idOrNull === 'string' ? txs.find(t => t.id === idOrNull) : null;
 
-        // 3. Update Tampilan
-        document.getElementById('h-collected').innerText = 'Rp ' + total.toLocaleString('id-ID');
-        document.getElementById('h-sisa').innerText = 'Rp ' + Math.max(0, myGoal - total).toLocaleString('id-ID');
-        
-        const pct = myGoal > 0 ? Math.min(100, Math.round((total / myGoal) * 100)) : 0;
-        const circumference = 245;
-        document.getElementById('ring').style.strokeDashoffset = circumference - (pct / 100) * circumference;
-        document.getElementById('pct-label').innerText = pct + '%';
-    }
+  document.getElementById('m-tx-title').textContent = tx ? 'Edit Transaksi' : 'Tambah Transaksi';
+  document.getElementById('tx-del-btn').style.display = tx ? 'block' : 'none';
 
-    async function updateGoal() {
-        const goalVal = document.getElementById('goal-input').value;
-        const deadlineVal = document.getElementById('deadline-input').value;
-        
-        if (!goalVal) return alert("Masukkan nominal target");
+  // Set type
+  const type = tx ? (tx.amount >= 0 ? 'plus' : 'minus') : 'plus';
+  setTxType(type);
 
-        // Perbaikan: Gunakan upsert dengan onConflict agar data tidak duplikat
-        const { error } = await sb.from('saving_goals').upsert({ 
-            user_id: currentUser.id, 
-            goal: parseInt(goalVal), 
-            deadline: deadlineVal, 
-            email: currentUser.email 
-        }, { onConflict: 'user_id' });
+  // Set category
+  selectedCat = tx ? (tx.category || '') : '';
+  renderCatPills(type);
+  if (selectedCat) highlightCat(selectedCat);
 
-        if (error) {
-            console.error(error);
-            alert("Gagal simpan: " + error.message);
-        } else {
-            alert("Target disimpan!");
-            loadData();
-        }
-    }
+  // Amount
+  const absAmt = tx ? Math.abs(tx.amount) : '';
+  const amtInput = document.getElementById('tx-amount');
+  amtInput.value = absAmt ? parseInt(absAmt).toLocaleString('id-ID') : '';
+  amtInput.dataset.raw = absAmt || '';
+  document.getElementById('tx-amount-display').textContent = absAmt ? 'Rp ' + parseInt(absAmt).toLocaleString('id-ID') : '';
 
-    async function addTransaction() {
-        const amountVal = document.getElementById('amount-input').value;
-        const noteVal = document.getElementById('note-input').value;
-        
-        if (!amountVal) return alert("Masukkan nominal tabungan");
+  document.getElementById('tx-note').value = tx ? (tx.note || '') : '';
 
-        const { error } = await sb.from('transactions').insert([{ 
-            user_id: currentUser.id, 
-            amount: parseInt(amountVal), 
-            note: noteVal || 'Nabung' 
-        }]);
+  openModal('m-tx');
+}
 
-        if (error) {
-            alert("Gagal catat transaksi: " + error.message);
-        } else {
-            document.getElementById('amount-input').value = '';
-            document.getElementById('note-input').value = '';
-            loadData();
-        }
-    }
+function setTxType(type) {
+  txType = type;
+  document.getElementById('t-plus').className = 'toggle-opt' + (type==='plus' ? ' on-plus' : '');
+  document.getElementById('t-minus').className = 'toggle-opt' + (type==='minus' ? ' on-minus' : '');
+  const saveBtn = document.getElementById('tx-save-btn');
+  saveBtn.style.background = type === 'minus' ? 'var(--red)' : '';
+  renderCatPills(type);
+}
 
-    async function deleteTx(id) {
-        if (confirm("Hapus transaksi ini?")) {
-            await sb.from('transactions').delete().eq('id', id);
-            loadData();
-        }
-    }
+function renderCatPills(type) {
+  const cats = type === 'plus' ? CATS_PLUS : CATS_MINUS;
+  const wrap = document.getElementById('cat-pills');
+  wrap.innerHTML = '';
+  cats.forEach(c => {
+    const btn = document.createElement('button');
+    btn.className = 'cat-pill' + (c === selectedCat ? ' selected' : '');
+    btn.textContent = c;
+    btn.onclick = () => { selectedCat = c; wrap.querySelectorAll('.cat-pill').forEach(b => b.classList.remove('selected')); btn.classList.add('selected'); };
+    wrap.appendChild(btn);
+  });
+}
 
-    init();
+function highlightCat(cat) {
+  document.querySelectorAll('.cat-pill').forEach(b => { if (b.textContent === cat) b.classList.add('selected'); });
+}
+
+async function saveTx() {
+  const rawAmt = parseInt(document.getElementById('tx-amount').dataset.raw || document.getElementById('tx-amount').value.replace(/\D/g,''));
+  if (!rawAmt || rawAmt <= 0) return toast('Masukkan nominal yang valid');
+  const finalAmt = txType === 'plus' ? rawAmt : -rawAmt;
+  const note = document.getElementById('tx-note').value.trim();
+  const category = selectedCat || (txType === 'plus' ? '📝 Lainnya' : '📝 Lainnya');
+
+  let error;
+  if (editingTxId) {
+    ({ error } = await sb.from('transactions').update({ amount: finalAmt, note: note || null, category }).eq('id', editingTxId));
+  } else {
+    ({ error } = await sb.from('transactions').insert([{ goal_id: activeGoal.id, user_id: user.id, amount: finalAmt, note: note || null, category }]));
+  }
+  if (error) return toast('Gagal: ' + error.message);
+  toast(editingTxId ? 'Transaksi diperbarui!' : 'Transaksi disimpan!');
+  closeModal('m-tx');
+  openGoal(activeGoal);
+}
+
+async function deleteTx() {
+  if (!editingTxId || !confirm('Hapus transaksi ini?')) return;
+  await sb.from('transactions').delete().eq('id', editingTxId);
+  toast('Transaksi dihapus');
+  closeModal('m-tx');
+  openGoal(activeGoal);
+}
+
+// ══════════════════════════ AI INSIGHT ══════════════════════════
+function openAIInsight() {
+  const saved = localStorage.getItem('anthropic_key') || '';
+  document.getElementById('insight-key').value = saved;
+  document.getElementById('insight-body').innerHTML = `
+    <div class="field"><label>Anthropic API Key</label><input id="insight-key" type="password" placeholder="sk-ant-..." value="${saved}"><div class="input-display">Key disimpan lokal di browser kamu</div></div>
+    <button class="btn btn-primary" onclick="runInsight()">✨ Generate Insight</button>
+  `;
+  openModal('m-insight');
+}
+
+async function runInsight() {
+  const key = document.getElementById('insight-key').value.trim();
+  if (!key) return toast('Masukkan API key dulu');
+  localStorage.setItem('anthropic_key', key);
+
+  const body = document.getElementById('insight-body');
+  body.innerHTML = `<div class="insight-loading">🤖 AI sedang menganalisa data kamu...<br><br><div class="loader" style="margin:0 auto"></div></div>`;
+
+  const masuk  = txs.filter(t => t.amount >= 0).reduce((s,t) => s+t.amount, 0);
+  const keluar = txs.filter(t => t.amount <  0).reduce((s,t) => s+Math.abs(t.amount), 0);
+  const net    = masuk - keluar;
+  const pct    = activeGoal.goal_amount > 0 ? ((net/activeGoal.goal_amount)*100).toFixed(1) : 0;
+  const cats   = {};
+  txs.forEach(t => { const k = t.category||'Lainnya'; cats[k] = (cats[k]||0) + Math.abs(t.amount); });
+  const catStr = Object.entries(cats).map(([k,v]) => `${k}: Rp${v.toLocaleString('id-ID')}`).join(', ');
+
+  const prompt = `Kamu adalah asisten keuangan personal. Berikan 3 insight singkat dalam Bahasa Indonesia tentang data tabungan ini:
+
+Goal: ${activeGoal.title}
+Target: Rp ${activeGoal.goal_amount.toLocaleString('id-ID')}
+Progress: ${pct}%
+Terkumpul: Rp ${net.toLocaleString('id-ID')}
+Total masuk: Rp ${masuk.toLocaleString('id-ID')}
+Total keluar: Rp ${keluar.toLocaleString('id-ID')}
+Jumlah transaksi: ${txs.length}
+${activeGoal.deadline ? `Deadline: ${activeGoal.deadline}` : 'Tanpa deadline'}
+Kategori pengeluaran: ${catStr || 'Belum ada'}
+
+Return HANYA JSON array of 3 strings. Setiap string max 120 karakter, dalam Bahasa Indonesia, mulai dengan emoji relevan, actionable. Tidak ada teks lain selain JSON array.`;
+
+  try {
+    const res = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': key,
+        'anthropic-version': '2023-06-01',
+        'anthropic-dangerous-direct-browser-access': 'true'
+      },
+      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+    });
+    if (!res.ok) throw new Error('Status ' + res.status);
+    const data = await res.json();
+    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const insights = JSON.parse(raw);
+
+    body.innerHTML = `<div style="margin-bottom:12px;font-size:11px;color:var(--muted)">Analisa untuk: <strong style="color:var(--text)">${esc(activeGoal.title)}</strong></div>`;
+    insights.forEach(ins => {
+      const div = document.createElement('div');
+      div.className = 'insight-item';
+      div.innerHTML = `<div style="font-size:20px;flex-shrink:0">${ins.match(/^\p{Emoji}/u)?.[0]||'💡'}</div><div>${esc(ins.replace(/^\p{Emoji}+\s*/u,''))}</div>`;
+      body.appendChild(div);
+    });
+    body.innerHTML += `<button class="btn btn-ghost" style="margin-top:8px" onclick="runInsight()">🔄 Refresh</button>`;
+  } catch(e) {
+    console.error(e);
+    body.innerHTML = `<div class="insight-item">⚠️ Gagal memuat insight. Cek API key atau coba lagi.</div><button class="btn btn-ghost" style="margin-top:8px" onclick="openAIInsight()">← Coba Lagi</button>`;
+  }
+}
+
+// ══════════════════════════ EXPORT / PRINT ══════════════════════════
+function printGoal() {
+  window.print();
+}
+
+// ══════════════════════════ DARK MODE ══════════════════════════
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute('data-theme');
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+  updateThemeIcons(next);
+  // Re-render charts with new colors
+  if (activeGoal && (chartLine || chartBar)) setTimeout(renderCharts, 50);
+}
+
+function updateThemeIcons(theme) {
+  const icon = theme === 'dark' ? '☀️' : '🌙';
+  const btn1 = document.getElementById('theme-btn');
+  const btn2 = document.getElementById('theme-btn2');
+  if (btn1) btn1.textContent = icon;
+  if (btn2) btn2.textContent = icon;
+}
+
+// ══════════════════════════ MODAL HELPERS ══════════════════════════
+function openModal(id)  { document.getElementById(id).classList.add('open'); }
+function closeModal(id) { document.getElementById(id).classList.remove('open'); }
+// Close on overlay click
+document.querySelectorAll('.modal-overlay').forEach(m => {
+  m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
+});
+
+// ══════════════════════════ FORMAT / UTIL ══════════════════════════
+function fmt(n)      { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtShort(n) { if (n >= 1e9) return (n/1e9).toFixed(1).replace('.0','') + 'M'; if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','') + 'jt'; if (n >= 1e3) return (n/1e3).toFixed(0) + 'rb'; return n.toString(); }
+function fmtK(n)     { if (n >= 1e6) return (n/1e6).toFixed(1) + 'jt'; if (n >= 1e3) return (n/1e3).toFixed(0) + 'rb'; return n; }
+function esc(s)      { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+
+// Auto-format Rupiah input
+function fmtInput(el) {
+  const raw = el.value.replace(/\D/g,'');
+  el.dataset.raw = raw;
+  el.value = raw ? parseInt(raw).toLocaleString('id-ID') : '';
+  const display = document.getElementById(el.id + '-display');
+  if (display) display.textContent = raw ? 'Rp ' + parseInt(raw).toLocaleString('id-ID') : '';
+}
+
+function toast(msg, dur=2500) {
+  const el = document.getElementById('toast');
+  el.textContent = msg;
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), dur);
+}
+
+// ══════════════════════════ START ══════════════════════════
+init();
 </script>
 </body>
 </html>
