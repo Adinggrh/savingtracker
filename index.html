@@ -480,27 +480,30 @@ function goBack() {
 }
 
 // ══════════════════════════ AUTH ══════════════════════════
-let authMode = 'login';
-function switchAuthTab(mode) {
-  authMode = mode;
-  document.getElementById('tab-login').classList.toggle('active', mode==='login');
-  document.getElementById('tab-reg').classList.toggle('active', mode==='reg');
-  document.getElementById('auth-submit').textContent = mode==='login' ? 'Masuk' : 'Daftar';
-}
-async function doAuth() {
-  const email = document.getElementById('auth-email').value.trim();
-  const pass  = document.getElementById('auth-pass').value;
-  if (!email || !pass) return toast('Isi email dan password');
-  if (authMode === 'login') {
-    const { error } = await sb.auth.signInWithPassword({ email, password: pass });
-    if (error) toast(error.message);
+if (authMode === 'login') {
+  const { error } = await sb.auth.signInWithPassword({
+    email,
+    password: pass
+  });
+
+  if (error) toast(error.message);
+
+} else {
+
+  const { error } = await sb.auth.signUp({
+    email,
+    password: pass,
+    options: {
+      emailRedirectTo: 'https://adinggrh.github.io/savingtracker/'
+    }
+  });
+
+  if (error) {
+    toast(error.message);
   } else {
-    const { error } = await sb.auth.signUp({ email, password: pass });
-    if (error) toast(error.message); else toast('Daftar berhasil! Silakan masuk.');
+    toast('Daftar berhasil! Silakan cek email.');
   }
 }
-async function doLogout() { await sb.auth.signOut(); }
-
 // ══════════════════════════ DASHBOARD ══════════════════════════
 async function loadDashboard() {
 
@@ -900,12 +903,44 @@ async function saveGoal() {
 }
 
 async function deleteGoal() {
+
   if (!editingGoalId) return;
+
   if (!confirm('Hapus goal ini dan semua transaksinya?')) return;
-  await sb.from('goals').delete().eq('id', editingGoalId);
-  toast('Goal dihapus');
+
+  // hapus semua transaksi terkait dulu
+  const { error: txError } = await sb
+    .from('transactions')
+    .delete()
+    .eq('goal_id', editingGoalId);
+
+  if (txError) {
+    console.error(txError);
+    toast('Gagal hapus transaksi');
+    return;
+  }
+
+  // baru hapus goal
+  const { error: goalError } = await sb
+    .from('goals')
+    .delete()
+    .eq('id', editingGoalId);
+
+  if (goalError) {
+    console.error(goalError);
+    toast('Gagal hapus goal');
+    return;
+  }
+
+  toast('Goal berhasil dihapus');
+
   closeModal('m-goal');
-  goBack();
+
+  activeGoal = null;
+
+  await loadDashboard();
+
+  showView('dash');
 }
 
 // ══════════════════════════ TX MODAL ══════════════════════════
