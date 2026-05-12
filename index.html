@@ -18,11 +18,11 @@
 }
 [data-theme="dark"]{
   --bg:#0e0d0c;--surface:#1a1916;--surface2:#222018;--border:#2e2b25;
-  --text:#f0ede6;--muted:#5a5750;--accent:#f0ede6;--accent-text:#1a1916;
+  --text:#f0ede6;--muted:#6a6760;--accent:#f0ede6;--accent-text:#1a1916;
   --green:#4ade80;--green-bg:#052e16;--green-border:#166534;
   --red:#f87171;--red-bg:#450a0a;--red-border:#991b1b;
   --tag:#2e2b25;--shadow:0 2px 12px rgba(0,0,0,0.3);
-  --chart-grid:rgba(255,255,255,0.04);--chart-text:#5a5750;
+  --chart-grid:rgba(255,255,255,0.04);--chart-text:#6a6760;
 }
 *{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -30,16 +30,13 @@ body{font-family:'Geist Mono',monospace;background:var(--bg);color:var(--text);m
 button{cursor:pointer;font-family:'Geist Mono',monospace}
 input,select{font-family:'Geist Mono',monospace}
 
-/* ─── LAYOUT ─── */
 .wrap{max-width:580px;margin:0 auto;padding:28px 18px 100px}
 .view{display:none}.view.active{display:block}
 
-/* ─── LOADING ─── */
 #loading{position:fixed;inset:0;background:var(--bg);display:flex;flex-direction:column;align-items:center;justify-content:center;z-index:9999;gap:12px}
 .loader{width:32px;height:32px;border:2px solid var(--border);border-top-color:var(--text);border-radius:50%;animation:spin .8s linear infinite}
 @keyframes spin{to{transform:rotate(360deg)}}
 
-/* ─── HEADER ─── */
 .top-bar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;animation:up .4s ease both}
 .top-bar-left{display:flex;align-items:center;gap:10px}
 .back-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 14px;font-size:11px;color:var(--text);transition:.2s}
@@ -47,21 +44,19 @@ input,select{font-family:'Geist Mono',monospace}
 .top-bar-right{display:flex;align-items:center;gap:8px}
 .icon-btn{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:8px 10px;font-size:14px;transition:.2s;color:var(--text)}
 .icon-btn:hover{background:var(--border)}
-.streak-badge{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:11px;display:flex;align-items:center;gap:5px}
+/* FIX: explicit color on streak badge so it's always readable */
+.streak-badge{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 12px;font-size:11px;display:flex;align-items:center;gap:5px;color:var(--text)}
 
-/* ─── PAGE TITLE ─── */
 .page-title{margin-bottom:28px;animation:up .4s .05s ease both}
 .page-label{font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--muted);margin-bottom:6px}
-.page-h1{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;line-height:1.1}
+.page-h1{font-family:'Instrument Serif',serif;font-size:32px;font-weight:400;line-height:1.1;color:var(--text)}
 .page-h1 em{font-style:italic;color:var(--muted)}
 
-/* ─── AUTH ─── */
 .auth-box{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:32px;animation:up .4s ease both}
 .auth-tabs{display:flex;gap:6px;margin-bottom:24px}
 .auth-tab{flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);transition:.2s}
 .auth-tab.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
 
-/* ─── FORM ─── */
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .field label{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
 .field input,.field select{font-size:13px;padding:10px 14px;border:1px solid var(--border);border-radius:10px;background:var(--surface2);color:var(--text);outline:none;transition:border-color .2s;width:100%}
@@ -69,17 +64,14 @@ input,select{font-family:'Geist Mono',monospace}
 .field input::placeholder{color:var(--muted)}
 .input-display{font-size:11px;color:var(--muted);margin-top:3px}
 
-/* ─── BUTTONS ─── */
 .btn{font-size:12px;padding:12px 16px;border-radius:10px;border:none;transition:.2s;width:100%}
 .btn-primary{background:var(--accent);color:var(--accent-text)}
 .btn-primary:hover{opacity:.88}
 .btn-ghost{background:var(--surface2);color:var(--text);border:1px solid var(--border)}
 .btn-ghost:hover{background:var(--border)}
-.btn-red{background:var(--red-bg);color:var(--red);border:1px solid var(--red-border)}
 .btn-sm{padding:7px 12px;font-size:11px;border-radius:8px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);width:auto;transition:.2s}
 .btn-sm:hover{background:var(--border)}
 
-/* ─── GOAL GRID ─── */
 .goals-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px}
 @media(max-width:420px){.goals-grid{grid-template-columns:1fr}}
 .goal-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:18px;cursor:pointer;transition:.2s;animation:up .4s ease both}
@@ -87,7 +79,7 @@ input,select{font-family:'Geist Mono',monospace}
 .goal-card-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px}
 .goal-emoji{font-size:24px;line-height:1}
 .goal-pct-badge{font-size:10px;font-weight:500;padding:3px 8px;border-radius:20px;background:var(--green-bg);color:var(--green)}
-.goal-title{font-size:13px;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-title{font-size:13px;font-weight:500;margin-bottom:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .goal-amounts{font-size:11px;color:var(--muted);margin-bottom:10px}
 .goal-amounts strong{color:var(--text);font-size:13px}
 .goal-bar{height:4px;background:var(--border);border-radius:4px;overflow:hidden;margin-bottom:8px}
@@ -97,11 +89,26 @@ input,select{font-family:'Geist Mono',monospace}
 .add-goal-card:hover{border-color:var(--muted);color:var(--text)}
 
 /* ─── HERO CARD ─── */
+/* Light mode: dark card with light text */
 .hero-card{background:var(--accent);border-radius:20px;padding:26px;color:var(--accent-text);margin-bottom:12px;display:flex;align-items:center;gap:24px;animation:up .4s .1s ease both;position:relative;overflow:hidden}
 .hero-card::before{content:'';position:absolute;top:-40px;right:-40px;width:160px;height:160px;border:1px solid rgba(247,246,243,.08);border-radius:50%}
+
+/* FIX dark mode: hero card menjadi gelap dengan teks terang, bukan putih */
+[data-theme="dark"] .hero-card{
+  background:#1e1d19;
+  color:#f0ede6;
+  border:1px solid #3a3732;
+}
+[data-theme="dark"] .hero-card::before{border-color:rgba(255,255,255,0.04)}
+[data-theme="dark"] .hero-sub{color:rgba(240,237,230,0.45)!important}
+[data-theme="dark"] .hero-item-label{color:rgba(240,237,230,0.35)!important}
+[data-theme="dark"] .hero-main-val,[data-theme="dark"] .hero-item-val{color:#f0ede6}
+[data-theme="dark"] #goal-hero-title{color:rgba(240,237,230,0.45)}
+
 .ring-wrap{flex-shrink:0;position:relative;width:80px;height:80px}
 .ring-wrap svg{transform:rotate(-90deg)}
 .ring-bg{fill:none;stroke:rgba(247,246,243,.12);stroke-width:5}
+[data-theme="dark"] .ring-bg{stroke:rgba(255,255,255,0.08)}
 .ring-fill{fill:none;stroke:#a8f0c8;stroke-width:5;stroke-linecap:round;stroke-dasharray:220;stroke-dashoffset:220;transition:stroke-dashoffset 1.2s ease}
 .ring-pct{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:#a8f0c8}
 .hero-main-val{font-family:'Instrument Serif',serif;font-size:26px;line-height:1;margin-bottom:3px}
@@ -110,20 +117,17 @@ input,select{font-family:'Geist Mono',monospace}
 .hero-item-val{font-size:12px;font-weight:500}
 .hero-item-label{font-size:9px;color:rgba(247,246,243,.4);letter-spacing:.06em;margin-top:1px}
 
-/* ─── HINT / INSIGHT CARD ─── */
 .hint-card{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:16px;margin-bottom:12px;animation:up .4s .15s ease both;display:flex;align-items:flex-start;gap:12px}
 .hint-icon{font-size:20px;flex-shrink:0}
 .hint-text{font-size:12px;line-height:1.6;color:var(--muted)}
 .hint-text strong{color:var(--text)}
 
-/* ─── SUMMARY BAR ─── */
 .summary-bar{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px;animation:up .4s .12s ease both}
 .sum-item{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:14px 16px}
 .sum-val{font-size:13px;font-weight:500;margin-bottom:2px}
 .sum-val.plus{color:var(--green)}.sum-val.minus{color:var(--red)}
 .sum-label{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em}
 
-/* ─── CHART CARD ─── */
 .chart-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:12px;animation:up .4s .18s ease both}
 .chart-tabs{display:flex;gap:6px;margin-bottom:16px}
 .chart-tab{padding:7px 14px;border-radius:8px;font-size:11px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:.2s}
@@ -131,37 +135,32 @@ input,select{font-family:'Geist Mono',monospace}
 .chart-panel{display:none}.chart-panel.active{display:block}
 .chart-canvas-wrap{position:relative;height:180px}
 
-/* ─── CARD ─── */
 .card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:22px;margin-bottom:12px;animation:up .4s .2s ease both}
 .card-title{font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 
-/* ─── TYPE TOGGLE ─── */
 .type-toggle{display:grid;grid-template-columns:1fr 1fr;gap:5px;background:var(--surface2);border:1px solid var(--border);border-radius:11px;padding:4px;margin-bottom:14px}
 .toggle-opt{padding:9px;border-radius:8px;border:none;font-size:11px;font-weight:500;background:transparent;color:var(--muted);transition:.2s}
 .toggle-opt.on-plus{background:var(--green-bg);color:var(--green)}
 .toggle-opt.on-minus{background:var(--red-bg);color:var(--red)}
 
-/* ─── CATEGORIES ─── */
 .cat-wrap{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px}
 .cat-pill{padding:6px 12px;border-radius:20px;font-size:11px;border:1px solid var(--border);background:var(--surface2);color:var(--muted);transition:.2s}
 .cat-pill:hover{border-color:var(--muted)}
 .cat-pill.selected{border-color:var(--accent);background:var(--accent);color:var(--accent-text)}
 [data-theme="dark"] .cat-pill.selected{background:var(--surface2);color:var(--text);border-color:var(--text)}
 
-/* ─── EMOJI PICKER ─── */
 .emoji-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:14px}
 .emoji-opt{font-size:22px;padding:8px;border-radius:10px;border:1.5px solid var(--border);background:var(--surface2);transition:.2s;line-height:1}
 .emoji-opt:hover{border-color:var(--muted)}
 .emoji-opt.selected{border-color:var(--accent);background:var(--tag)}
 
-/* ─── TRANSACTIONS ─── */
 .tx-list{display:flex;flex-direction:column;gap:0}
 .tx-item{display:flex;align-items:center;gap:10px;padding:11px 0;border-bottom:1px solid var(--border)}
 .tx-item:last-child{border-bottom:none}
 .tx-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
 .tx-dot.p{background:var(--green)}.tx-dot.m{background:var(--red)}
 .tx-info{flex:1;min-width:0}
-.tx-note{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tx-note{font-size:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:var(--text)}
 .tx-meta{font-size:10px;color:var(--muted);margin-top:2px}
 .tx-cat{display:inline-block;padding:1px 6px;border-radius:4px;background:var(--tag);font-size:9px;color:var(--muted);margin-left:4px;letter-spacing:.04em;text-transform:uppercase}
 .tx-right{display:flex;align-items:center;gap:6px;flex-shrink:0}
@@ -170,44 +169,34 @@ input,select{font-family:'Geist Mono',monospace}
 .tx-edit{background:none;border:1px solid var(--border);border-radius:5px;color:var(--muted);padding:3px 7px;font-size:10px;transition:.2s}
 .tx-edit:hover{background:var(--border)}
 
-/* ─── EMPTY STATE ─── */
 .empty{text-align:center;padding:32px 16px}
 .empty-icon{font-size:36px;margin-bottom:10px}
 .empty-title{font-size:13px;color:var(--text);margin-bottom:5px}
 .empty-sub{font-size:11px;color:var(--muted)}
 
-/* ─── FAB ─── */
 .fab{position:fixed;bottom:28px;right:50%;transform:translateX(calc(50% + 270px));background:var(--accent);color:var(--accent-text);border:none;border-radius:50%;width:52px;height:52px;font-size:22px;box-shadow:0 4px 20px rgba(0,0,0,.2);transition:.2s;z-index:100}
 @media(max-width:620px){.fab{right:20px;transform:none}}
 .fab:hover{transform:translateX(calc(50% + 270px)) scale(1.05)}
 @media(max-width:620px){.fab:hover{transform:scale(1.05)}}
 
-/* ─── MODAL ─── */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;display:none;align-items:flex-end;justify-content:center;backdrop-filter:blur(4px)}
 .modal-overlay.open{display:flex;animation:fadeIn .2s ease}
 .modal-box{background:var(--surface);border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:580px;max-height:88vh;overflow-y:auto;animation:slideUp .3s ease}
 .modal-handle{width:36px;height:3px;background:var(--border);border-radius:3px;margin:0 auto 20px;display:block}
-.modal-title{font-size:14px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between}
+.modal-title{font-size:14px;font-weight:500;margin-bottom:20px;display:flex;align-items:center;justify-content:space-between;color:var(--text)}
 .modal-close{background:none;border:none;font-size:18px;color:var(--muted)}
 .col-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 
-/* ─── INSIGHT MODAL ─── */
-.insight-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;font-size:12px;line-height:1.6;display:flex;gap:10px}
+.insight-item{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:14px;margin-bottom:8px;font-size:12px;line-height:1.6;display:flex;gap:10px;color:var(--text)}
 .insight-loading{text-align:center;padding:32px;color:var(--muted);font-size:12px}
 
-/* ─── TOAST ─── */
 #toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--accent);color:var(--accent-text);padding:10px 20px;border-radius:12px;font-size:12px;z-index:1000;opacity:0;transition:opacity .3s;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1}
 
-/* ─── DARK MODE TRANSITION ─── */
-.theme-transition *{transition:background .3s,color .3s,border-color .3s!important}
-
-/* ─── ANIMATIONS ─── */
 @keyframes up{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideUp{from{transform:translateY(40px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-/* ─── PRINT ─── */
 @media print{
   .fab,.icon-btn,.back-btn,.tx-edit,.type-toggle,.modal-overlay,#toast{display:none!important}
   body{background:#fff;color:#000}
@@ -218,13 +207,12 @@ input,select{font-family:'Geist Mono',monospace}
 </head>
 <body>
 
-<!-- LOADING -->
 <div id="loading">
   <div class="loader"></div>
   <span style="font-size:11px;color:var(--muted)">Memuat...</span>
 </div>
 
-<!-- ════════════════════════════════ VIEW: AUTH ════════════════════════════════ -->
+<!-- VIEW: AUTH -->
 <div id="v-auth" class="view">
 <div class="wrap">
   <div class="page-title" style="margin-top:40px">
@@ -243,7 +231,7 @@ input,select{font-family:'Geist Mono',monospace}
 </div>
 </div>
 
-<!-- ════════════════════════════════ VIEW: DASHBOARD ════════════════════════════════ -->
+<!-- VIEW: DASHBOARD -->
 <div id="v-dash" class="view">
 <div class="wrap">
   <div class="top-bar">
@@ -259,19 +247,14 @@ input,select{font-family:'Geist Mono',monospace}
     <div class="page-label" id="dash-user-label">—</div>
     <h1 class="page-h1">Saving<br><em>Tracker.</em></h1>
   </div>
-
-  <!-- Goals Grid -->
-  <div class="goals-grid" id="goals-grid">
-    <!-- injected by JS -->
-  </div>
-
+  <div class="goals-grid" id="goals-grid"></div>
   <button class="add-goal-card" onclick="openGoalModal(null)">
     <span style="font-size:18px">+</span> Tambah Goal Baru
   </button>
 </div>
 </div>
 
-<!-- ════════════════════════════════ VIEW: GOAL DETAIL ════════════════════════════════ -->
+<!-- VIEW: GOAL DETAIL -->
 <div id="v-goal" class="view">
 <div class="wrap">
   <div class="top-bar">
@@ -286,7 +269,6 @@ input,select{font-family:'Geist Mono',monospace}
     </div>
   </div>
 
-  <!-- Hero -->
   <div class="hero-card" id="goal-hero">
     <div class="ring-wrap">
       <svg width="80" height="80" viewBox="0 0 80 80">
@@ -306,19 +288,16 @@ input,select{font-family:'Geist Mono',monospace}
     </div>
   </div>
 
-  <!-- Hint -->
-  <div class="hint-card" id="hint-card">
+  <div class="hint-card">
     <div class="hint-icon">💡</div>
     <div class="hint-text" id="hint-text">Memuat...</div>
   </div>
 
-  <!-- Summary -->
   <div class="summary-bar">
     <div class="sum-item"><div class="sum-val plus" id="g-masuk">Rp 0</div><div class="sum-label">↑ Total Masuk</div></div>
     <div class="sum-item"><div class="sum-val minus" id="g-keluar">Rp 0</div><div class="sum-label">↓ Total Keluar</div></div>
   </div>
 
-  <!-- Charts -->
   <div class="chart-card">
     <div class="chart-tabs">
       <button class="chart-tab active" onclick="switchChart('line',this)">📈 Progress</button>
@@ -332,21 +311,20 @@ input,select{font-family:'Geist Mono',monospace}
     </div>
   </div>
 
-  <!-- Transactions -->
   <div class="card">
     <div class="card-title">
       Riwayat Transaksi
       <span id="tx-count" style="font-weight:400"></span>
     </div>
-    <div id="tx-list"><div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">Belum ada transaksi</div><div class="empty-sub">Mulai nabung hari ini ✨</div></div></div>
+    <div id="tx-list">
+      <div class="empty"><div class="empty-icon">🏦</div><div class="empty-title">Belum ada transaksi</div><div class="empty-sub">Mulai nabung hari ini ✨</div></div>
+    </div>
   </div>
 </div>
-
-<!-- FAB: Add Transaction -->
 <button class="fab" onclick="openTxModal(null)">+</button>
 </div>
 
-<!-- ════════════════════════════════ MODAL: GOAL ════════════════════════════════ -->
+<!-- MODAL: GOAL -->
 <div class="modal-overlay" id="m-goal">
 <div class="modal-box">
   <span class="modal-handle"></span>
@@ -354,25 +332,20 @@ input,select{font-family:'Geist Mono',monospace}
     <span id="m-goal-title">Tambah Goal</span>
     <button class="modal-close" onclick="closeModal('m-goal')">✕</button>
   </div>
-  <!-- Emoji picker -->
-  <div class="field"><label>Ikon</label>
-    <div class="emoji-wrap" id="emoji-picker">
-      <!-- injected -->
-    </div>
-  </div>
+  <div class="field"><label>Ikon</label><div class="emoji-wrap" id="emoji-picker"></div></div>
   <div class="field"><label>Nama Goal</label><input id="g-title" placeholder="Contoh: Sony A7IV"></div>
   <div class="col-2">
     <div class="field"><label>Target (Rp)</label><input id="g-amount" type="text" inputmode="numeric" placeholder="0" oninput="fmtInput(this)"><div class="input-display" id="g-amount-display"></div></div>
     <div class="field"><label>Deadline</label><input id="g-deadline" type="date"></div>
   </div>
   <div style="display:flex;gap:8px;margin-top:4px">
-    <button class="btn btn-ghost" style="width:auto;flex:1" id="g-del-btn" onclick="deleteGoal()">Hapus Goal</button>
+    <button class="btn btn-ghost" style="width:auto;flex:1;display:none" id="g-del-btn" onclick="deleteGoal()">Hapus Goal</button>
     <button class="btn btn-primary" style="flex:2" onclick="saveGoal()">Simpan</button>
   </div>
 </div>
 </div>
 
-<!-- ════════════════════════════════ MODAL: TX ════════════════════════════════ -->
+<!-- MODAL: TX -->
 <div class="modal-overlay" id="m-tx">
 <div class="modal-box">
   <span class="modal-handle"></span>
@@ -380,14 +353,11 @@ input,select{font-family:'Geist Mono',monospace}
     <span id="m-tx-title">Tambah Transaksi</span>
     <button class="modal-close" onclick="closeModal('m-tx')">✕</button>
   </div>
-  <!-- Type toggle -->
   <div class="type-toggle">
     <button class="toggle-opt on-plus" id="t-plus" onclick="setTxType('plus')">+ Tambah Saldo</button>
     <button class="toggle-opt" id="t-minus" onclick="setTxType('minus')">− Kurangi Saldo</button>
   </div>
-  <!-- Categories -->
   <div class="field"><label>Kategori</label><div class="cat-wrap" id="cat-pills"></div></div>
-  <!-- Amount + Note -->
   <div class="col-2">
     <div class="field"><label>Nominal (Rp)</label><input id="tx-amount" type="text" inputmode="numeric" placeholder="0" oninput="fmtInput(this)"><div class="input-display" id="tx-amount-display"></div></div>
     <div class="field"><label>Catatan</label><input id="tx-note" type="text" placeholder="Opsional"></div>
@@ -399,7 +369,7 @@ input,select{font-family:'Geist Mono',monospace}
 </div>
 </div>
 
-<!-- ════════════════════════════════ MODAL: AI INSIGHT ════════════════════════════════ -->
+<!-- MODAL: AI INSIGHT -->
 <div class="modal-overlay" id="m-insight">
 <div class="modal-box">
   <span class="modal-handle"></span>
@@ -407,43 +377,37 @@ input,select{font-family:'Geist Mono',monospace}
     🤖 Smart Insight AI
     <button class="modal-close" onclick="closeModal('m-insight')">✕</button>
   </div>
-  <div id="insight-body">
-    <div class="field"><label>Anthropic API Key</label><input id="insight-key" type="password" placeholder="sk-ant-..."><div class="input-display">Key disimpan lokal di browser kamu</div></div>
-    <button class="btn btn-primary" onclick="runInsight()">Generate Insight</button>
-  </div>
+  <div id="insight-body"></div>
 </div>
 </div>
 
-<!-- TOAST -->
 <div id="toast"></div>
 
 <script>
 // ══════════════════════════ CONFIG ══════════════════════════
-const SUPABASE_URL = "https://lxquockcvcduelikjjox.supabase.co";
+const SUPABASE_URL      = "https://lxquockcvcduelikjjox.supabase.co";
 const SUPABASE_ANON_KEY = "sb_publishable_wkwVh1JOZETaneX2ddhIrA_QhIafDvA";
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 // ══════════════════════════ STATE ══════════════════════════
-let user = null;
-let goals = [];
-let activeGoal = null;
-let txs = [];
+let user         = null;
+let goals        = [];
+let activeGoal   = null;
+let txs          = [];
 let editingGoalId = null;
-let editingTxId = null;
-let txType = 'plus';
-let selectedCat = '';
+let editingTxId  = null;
+let txType       = 'plus';
+let selectedCat  = '';
 let selectedEmoji = '🎯';
-let chartLine = null;
-let chartBar = null;
+let chartLine    = null;
+let chartBar     = null;
 
-// ══════════════════════════ DATA ══════════════════════════
-const EMOJIS = ['🎯','🏍️','📷','🏠','✈️','💍','💻','🎓','🚗','💰','🎮','👜','🏋️','📱','🎸','🌴'];
+const EMOJIS     = ['🎯','🏍️','📷','🏠','✈️','💍','💻','🎓','🚗','💰','🎮','👜','🏋️','📱','🎸','🌴'];
 const CATS_PLUS  = ['💼 Gaji','💻 Freelance','🎁 Bonus','🛍️ Jualan','🏦 Nabung','📈 Investasi','📝 Lainnya'];
 const CATS_MINUS = ['🍜 Makan','🚗 Transport','🛒 Belanja','🔌 Tagihan','🎮 Hiburan','📝 Lainnya'];
 
 // ══════════════════════════ INIT ══════════════════════════
 async function init() {
-  // Load saved theme
   const savedTheme = localStorage.getItem('theme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateThemeIcons(savedTheme);
@@ -457,8 +421,8 @@ function handleSession(session) {
   document.getElementById('loading').style.display = 'none';
   if (session?.user) {
     user = session.user;
-    showView('dash');
     document.getElementById('dash-user-label').textContent = user.email;
+    showView('dash');
     loadDashboard();
   } else {
     user = null;
@@ -466,91 +430,79 @@ function handleSession(session) {
   }
 }
 
-// ══════════════════════════ VIEW MANAGER ══════════════════════════
 function showView(name) {
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   document.getElementById('v-' + name).classList.add('active');
 }
 
 function goBack() {
-  activeGoal = null; txs = [];
+  activeGoal = null;
+  txs = [];
   destroyCharts();
   showView('dash');
   loadDashboard();
 }
 
 // ══════════════════════════ AUTH ══════════════════════════
-if (authMode === 'login') {
-  const { error } = await sb.auth.signInWithPassword({
-    email,
-    password: pass
-  });
+// FIX 1: switchAuthTab itu HILANG di versi sebelumnya
+function switchAuthTab(mode) {
+  const isLogin = mode === 'login';
+  document.getElementById('tab-login').classList.toggle('active', isLogin);
+  document.getElementById('tab-reg').classList.toggle('active', !isLogin);
+  document.getElementById('auth-submit').textContent = isLogin ? 'Masuk' : 'Daftar';
+}
 
-  if (error) toast(error.message);
+// FIX 2: doAuth() itu RUSAK di versi sebelumnya — kodenya melayang di luar function
+// sehingga script langsung crash saat halaman dibuka → loading terus
+async function doAuth() {
+  const email = document.getElementById('auth-email').value.trim();
+  const pass  = document.getElementById('auth-pass').value;
+  if (!email) return toast('Masukkan email kamu');
+  if (!pass)  return toast('Masukkan password kamu');
 
-} else {
+  const mode = document.getElementById('tab-login').classList.contains('active') ? 'login' : 'reg';
+  const btn  = document.getElementById('auth-submit');
+  btn.textContent = '...';
+  btn.disabled = true;
 
-  const { error } = await sb.auth.signUp({
-    email,
-    password: pass,
-    options: {
-      emailRedirectTo: 'https://adinggrh.github.io/savingtracker/'
+  try {
+    if (mode === 'login') {
+      const { error } = await sb.auth.signInWithPassword({ email, password: pass });
+      if (error) toast(error.message);
+    } else {
+      const { error } = await sb.auth.signUp({
+        email,
+        password: pass,
+        options: { emailRedirectTo: window.location.href }
+      });
+      if (error) toast(error.message);
+      else toast('Daftar berhasil! Cek email kamu 📬');
     }
-  });
-
-  if (error) {
-    toast(error.message);
-  } else {
-    toast('Daftar berhasil! Silakan cek email.');
+  } finally {
+    btn.textContent = mode === 'login' ? 'Masuk' : 'Daftar';
+    btn.disabled = false;
   }
 }
+
+// FIX 3: doLogout() HILANG di versi sebelumnya
+async function doLogout() {
+  await sb.auth.signOut();
+}
+
 // ══════════════════════════ DASHBOARD ══════════════════════════
 async function loadDashboard() {
-
-  console.log("USER:", user);
-
   const { data: goalData, error: goalErr } = await sb
-    .from('goals')
-    .select('*')
-    .eq('user_id', user.id)
-    .order('created_at');
-
-  console.log("GOAL DATA:", goalData);
-  console.log("GOAL ERROR:", goalErr);
-
-  if (goalErr) {
-    toast(goalErr.message);
-    return;
-  }
+    .from('goals').select('*').eq('user_id', user.id).order('created_at');
+  if (goalErr) { toast(goalErr.message); return; }
 
   const { data: txData, error: txErr } = await sb
-    .from('transactions')
-    .select('*')
-    .eq('user_id', user.id);
-
-  console.log("TX DATA:", txData);
-  console.log("TX ERROR:", txErr);
-
-  if (txErr) {
-    toast(txErr.message);
-    return;
-  }
+    .from('transactions').select('*').eq('user_id', user.id);
+  if (txErr) { toast(txErr.message); return; }
 
   goals = (goalData || []).map(goal => {
-
-    const relatedTx = (txData || []).filter(
-      tx => tx.goal_id === goal.id
-    );
-
-    const totalCollected = relatedTx.reduce(
-      (sum, tx) => sum + tx.amount,
-      0
-    );
-
-    return {
-      ...goal,
-      collected: Math.max(0, totalCollected)
-    };
+    const related = (txData || []).filter(t => t.goal_id === goal.id);
+    const total   = related.reduce((sum, t) => sum + t.amount, 0);
+    return { ...goal, collected: Math.max(0, total) };
   });
 
   renderGoalCards();
@@ -558,94 +510,37 @@ async function loadDashboard() {
 }
 
 function renderGoalCards() {
-
   const grid = document.getElementById('goals-grid');
-
-  // kosongkan isi
   grid.innerHTML = '';
 
-  // empty state
   if (!goals.length) {
-
-    grid.innerHTML = `
-      <div class="empty" style="grid-column:1/-1">
-        <div class="empty-icon">🎯</div>
-        <div class="empty-title">Belum ada goal</div>
-        <div class="empty-sub">Yuk buat goal pertama kamu!</div>
-      </div>
-    `;
-
+    grid.innerHTML = `<div class="empty" style="grid-column:1/-1">
+      <div class="empty-icon">🎯</div>
+      <div class="empty-title">Belum ada goal</div>
+      <div class="empty-sub">Yuk buat goal pertama kamu!</div>
+    </div>`;
     return;
   }
 
   goals.forEach((g, i) => {
-
-    const collected = g.collected || 0;
-
-    const pct =
-      g.goal_amount > 0
-        ? Math.min(
-            100,
-            Math.round((collected / g.goal_amount) * 100)
-          )
-        : 0;
-
+    const pct = g.goal_amount > 0
+      ? Math.min(100, Math.round((g.collected / g.goal_amount) * 100)) : 0;
     const daysLeft = g.deadline
-      ? Math.max(
-          0,
-          Math.ceil(
-            (new Date(g.deadline) - new Date()) / 86400000
-          )
-        )
-      : null;
+      ? Math.max(0, Math.ceil((new Date(g.deadline) - new Date()) / 86400000)) : null;
 
     const card = document.createElement('div');
-
     card.className = 'goal-card';
     card.style.animationDelay = (i * 0.05) + 's';
-
     card.innerHTML = `
       <div class="goal-card-top">
-
-        <span class="goal-emoji">
-          ${g.emoji || '🎯'}
-        </span>
-
-        <span class="goal-pct-badge">
-          ${pct}%
-        </span>
-
+        <span class="goal-emoji">${g.emoji || '🎯'}</span>
+        <span class="goal-pct-badge">${pct}%</span>
       </div>
-
-      <div class="goal-title">
-        ${esc(g.title)}
-      </div>
-
-      <div class="goal-amounts">
-        <strong>${fmt(collected)}</strong>
-        / ${fmt(g.goal_amount)}
-      </div>
-
-      <div class="goal-bar">
-        <div
-          class="goal-bar-fill"
-          style="width:${pct}%"
-        ></div>
-      </div>
-
-      <div class="goal-deadline">
-
-        ${
-          daysLeft !== null
-            ? `📅 ${daysLeft} hari lagi`
-            : '📅 Tanpa deadline'
-        }
-
-      </div>
-    `;
-
+      <div class="goal-title">${esc(g.title)}</div>
+      <div class="goal-amounts"><strong>${fmt(g.collected)}</strong> / ${fmt(g.goal_amount)}</div>
+      <div class="goal-bar"><div class="goal-bar-fill" style="width:${pct}%"></div></div>
+      <div class="goal-deadline">${daysLeft !== null ? `📅 ${daysLeft} hari lagi` : '📅 Tanpa deadline'}</div>`;
     card.onclick = () => openGoal(g);
-
     grid.appendChild(card);
   });
 }
@@ -653,14 +548,13 @@ function renderGoalCards() {
 async function loadStreak() {
   const { data } = await sb.from('transactions').select('created_at').eq('user_id', user.id);
   const streak = calcStreak(data || []);
-  const badge = document.getElementById('streak-badge');
+  const badge  = document.getElementById('streak-badge');
   badge.textContent = `🔥 ${streak} hari`;
-  badge.title = streak > 0 ? `Konsisten nabung ${streak} hari berturut-turut!` : 'Belum ada streak';
 }
 
 function calcStreak(txList) {
   if (!txList.length) return 0;
-  const today = new Date(); today.setHours(0,0,0,0);
+  const today  = new Date(); today.setHours(0,0,0,0);
   const unique = [...new Set(txList.map(t => {
     const d = new Date(t.created_at); d.setHours(0,0,0,0); return d.getTime();
   }))].sort((a,b) => b-a);
@@ -678,63 +572,44 @@ async function openGoal(g) {
   showView('goal');
   document.getElementById('goal-hero-title').textContent = (g.emoji||'🎯') + ' ' + g.title;
 
-  const { data } = await sb.from('transactions').select('*').eq('goal_id', g.id).order('created_at', { ascending: false });
+  const { data } = await sb
+    .from('transactions').select('*').eq('goal_id', g.id).order('created_at', { ascending: false });
   txs = data || [];
 
-  // Compute totals
   let masuk = 0, keluar = 0;
   txs.forEach(t => { if (t.amount >= 0) masuk += t.amount; else keluar += Math.abs(t.amount); });
   const net = masuk - keluar;
   const pct = g.goal_amount > 0 ? Math.min(100, Math.round(net / g.goal_amount * 100)) : 0;
-
-  // Update collected on goal object
   activeGoal.collected = net;
 
-  // Hero
-  document.getElementById('goal-hero-val').textContent = fmt(Math.max(0, net));
-  document.getElementById('goal-hero-sub').textContent = 'dari target ' + fmt(g.goal_amount);
-  document.getElementById('goal-sisa').textContent = fmt(Math.max(0, g.goal_amount - net));
-  const ring = document.getElementById('goal-ring');
-  ring.style.strokeDashoffset = 220 - (pct/100)*220;
-  document.getElementById('goal-pct').textContent = pct + '%';
+  document.getElementById('goal-hero-val').textContent  = fmt(Math.max(0, net));
+  document.getElementById('goal-hero-sub').textContent  = 'dari target ' + fmt(g.goal_amount);
+  document.getElementById('goal-sisa').textContent      = fmt(Math.max(0, g.goal_amount - net));
+  document.getElementById('goal-ring').style.strokeDashoffset = 220 - (pct / 100) * 220;
+  document.getElementById('goal-pct').textContent       = pct + '%';
+  document.getElementById('goal-days').textContent      = g.deadline
+    ? Math.max(0, Math.ceil((new Date(g.deadline) - new Date()) / 86400000)) + ' hari' : '—';
+  document.getElementById('g-masuk').textContent        = fmt(masuk);
+  document.getElementById('g-keluar').textContent       = fmt(keluar);
 
-  // Days
-  if (g.deadline) {
-    const days = Math.max(0, Math.ceil((new Date(g.deadline) - new Date()) / 86400000));
-    document.getElementById('goal-days').textContent = days + ' hari';
-  } else {
-    document.getElementById('goal-days').textContent = '—';
-  }
-
-  // Summary
-  document.getElementById('g-masuk').textContent = fmt(masuk);
-  document.getElementById('g-keluar').textContent = fmt(keluar);
-
-  // Daily hint
   renderHint(g, net);
-
-  // Charts
   renderCharts();
-
-  // Transactions
   renderTxList();
 }
 
 function renderHint(g, net) {
   const el = document.getElementById('hint-text');
   if (!g.deadline || !g.goal_amount) {
-    el.innerHTML = 'Atur deadline dan target untuk mendapat saran harian. 📅';
-    return;
+    el.innerHTML = 'Atur deadline dan target untuk mendapat saran harian. 📅'; return;
   }
   const days = Math.max(1, Math.ceil((new Date(g.deadline) - new Date()) / 86400000));
   const sisa = Math.max(0, g.goal_amount - net);
-  if (sisa <= 0) {
-    el.innerHTML = '🎉 <strong>Goal tercapai!</strong> Luar biasa, kamu berhasil!';
-    return;
-  }
-  const daily = Math.ceil(sisa / days);
-  const onTrack = (net / g.goal_amount) >= (1 - days / Math.max(1, Math.ceil((new Date(g.deadline) - new Date(g.created_at||new Date())) / 86400000)));
-  el.innerHTML = `Kamu perlu menabung <strong>${fmt(daily)}/hari</strong> untuk mencapai target tepat waktu. ${onTrack ? '👍 Kamu masih on track!' : '⚠️ Perlu sedikit lebih konsisten.'}`;
+  if (sisa <= 0) { el.innerHTML = '🎉 <strong>Goal tercapai!</strong> Luar biasa!'; return; }
+  const daily   = Math.ceil(sisa / days);
+  const elapsed = Math.max(1, Math.ceil((new Date() - new Date(g.created_at || new Date())) / 86400000));
+  const total   = elapsed + days;
+  const onTrack = (net / g.goal_amount) >= (elapsed / total);
+  el.innerHTML = `Nabung <strong>${fmt(daily)}/hari</strong> untuk mencapai target tepat waktu. ${onTrack ? '👍 On track!' : '⚠️ Perlu lebih konsisten.'}`;
 }
 
 function renderTxList() {
@@ -747,19 +622,18 @@ function renderTxList() {
   el.innerHTML = '';
   txs.forEach(t => {
     const isPlus = t.amount >= 0;
-    const item = document.createElement('div');
+    const item   = document.createElement('div');
     item.className = 'tx-item';
     item.innerHTML = `
       <div class="tx-dot ${isPlus?'p':'m'}"></div>
       <div class="tx-info">
-        <div class="tx-note">${esc(t.note || (isPlus?'Nabung':'Pengeluaran'))}<span class="tx-cat">${esc(t.category||'Lainnya')}</span></div>
+        <div class="tx-note">${esc(t.note||(isPlus?'Nabung':'Pengeluaran'))}<span class="tx-cat">${esc(t.category||'Lainnya')}</span></div>
         <div class="tx-meta">${new Date(t.created_at).toLocaleDateString('id-ID',{day:'2-digit',month:'short',year:'numeric'})}</div>
       </div>
       <div class="tx-right">
         <span class="tx-amount ${isPlus?'p':'m'}">${isPlus?'+':'−'}${fmt(Math.abs(t.amount))}</span>
         <button class="tx-edit" onclick="openTxModal('${t.id}')">✎</button>
-      </div>
-    `;
+      </div>`;
     el.appendChild(item);
   });
 }
@@ -780,10 +654,10 @@ function destroyCharts() {
 function chartColors() {
   const dark = document.documentElement.getAttribute('data-theme') === 'dark';
   return {
-    grid: dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
-    text: dark ? '#5a5750' : '#9c9789',
-    green: dark ? '#4ade80' : '#16a34a',
-    red:   dark ? '#f87171' : '#dc2626',
+    grid:    dark ? 'rgba(255,255,255,0.04)' : 'rgba(0,0,0,0.05)',
+    text:    dark ? '#6a6760' : '#9c9789',
+    green:   dark ? '#4ade80' : '#16a34a',
+    red:     dark ? '#f87171' : '#dc2626',
     greenBg: dark ? 'rgba(74,222,128,0.12)' : 'rgba(22,163,74,0.1)',
   };
 }
@@ -793,55 +667,46 @@ function renderCharts() {
   const sorted = [...txs].sort((a,b) => new Date(a.created_at) - new Date(b.created_at));
   const c = chartColors();
 
-  // ── LINE: Cumulative balance ──
   const byDay = {};
   sorted.forEach(t => { const d = t.created_at.split('T')[0]; byDay[d] = (byDay[d]||0) + t.amount; });
-  const days = Object.keys(byDay).sort();
+  const days  = Object.keys(byDay).sort();
   const lineLabels = days.map(d => new Date(d).toLocaleDateString('id-ID',{day:'numeric',month:'short'}));
-  const lineData = []; let running = 0;
+  const lineData   = []; let running = 0;
   days.forEach(d => { running += byDay[d]; lineData.push(Math.max(0, running)); });
-
-  if (!days.length) lineLabels.push('Belum ada data'), lineData.push(0);
+  if (!days.length) { lineLabels.push('Belum ada data'); lineData.push(0); }
 
   chartLine = new Chart(document.getElementById('chart-line'), {
     type: 'line',
-    data: {
-      labels: lineLabels,
-      datasets: [{ label: 'Saldo', data: lineData, borderColor: c.green, backgroundColor: c.greenBg, borderWidth: 2, fill: true, tension: 0.4, pointRadius: lineData.length > 10 ? 0 : 4, pointBackgroundColor: c.green }]
-    },
+    data: { labels: lineLabels, datasets: [{ label:'Saldo', data:lineData, borderColor:c.green, backgroundColor:c.greenBg, borderWidth:2, fill:true, tension:0.4, pointRadius:lineData.length>10?0:4, pointBackgroundColor:c.green }] },
     options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => 'Rp ' + ctx.raw.toLocaleString('id-ID') } } },
-      scales: {
-        x: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, maxTicksLimit: 6 } },
-        y: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, callback: v => fmtK(v) } }
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{display:false}, tooltip:{callbacks:{label:ctx=>'Rp '+ctx.raw.toLocaleString('id-ID')}} },
+      scales:{
+        x:{grid:{color:c.grid},ticks:{color:c.text,font:{family:"'Geist Mono',monospace",size:10},maxTicksLimit:6}},
+        y:{grid:{color:c.grid},ticks:{color:c.text,font:{family:"'Geist Mono',monospace",size:10},callback:v=>fmtK(v)}}
       }
     }
   });
 
-  // ── BAR: Monthly income vs expense ──
   const months6 = [];
-  for (let i = 5; i >= 0; i--) { const d = new Date(); d.setMonth(d.getMonth()-i); months6.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); }
-  const mIn = {}, mOut = {};
-  months6.forEach(m => { mIn[m] = 0; mOut[m] = 0; });
-  sorted.forEach(t => { const m = t.created_at.substring(0,7); if (mIn[m] !== undefined) { if (t.amount >= 0) mIn[m] += t.amount; else mOut[m] += Math.abs(t.amount); } });
-  const barLabels = months6.map(m => { const [y,mo] = m.split('-'); return new Date(y,mo-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}); });
+  for (let i=5;i>=0;i--) { const d=new Date(); d.setMonth(d.getMonth()-i); months6.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}`); }
+  const mIn={}, mOut={};
+  months6.forEach(m=>{ mIn[m]=0; mOut[m]=0; });
+  sorted.forEach(t=>{ const m=t.created_at.substring(0,7); if(mIn[m]!==undefined){ if(t.amount>=0) mIn[m]+=t.amount; else mOut[m]+=Math.abs(t.amount); } });
+  const barLabels = months6.map(m=>{ const [y,mo]=m.split('-'); return new Date(y,mo-1).toLocaleDateString('id-ID',{month:'short',year:'2-digit'}); });
 
   chartBar = new Chart(document.getElementById('chart-bar'), {
-    type: 'bar',
-    data: {
-      labels: barLabels,
-      datasets: [
-        { label: 'Masuk', data: months6.map(m => mIn[m]), backgroundColor: c.green + 'cc', borderRadius: 5 },
-        { label: 'Keluar', data: months6.map(m => mOut[m]), backgroundColor: c.red + 'aa', borderRadius: 5 }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { labels: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, boxWidth: 10 } }, tooltip: { callbacks: { label: ctx => ctx.dataset.label + ': Rp ' + ctx.raw.toLocaleString('id-ID') } } },
-      scales: {
-        x: { grid: { display: false }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 } } },
-        y: { grid: { color: c.grid }, ticks: { color: c.text, font: { family: "'Geist Mono', monospace", size: 10 }, callback: v => fmtK(v) } }
+    type:'bar',
+    data:{ labels:barLabels, datasets:[
+      {label:'Masuk', data:months6.map(m=>mIn[m]),  backgroundColor:c.green+'cc', borderRadius:5},
+      {label:'Keluar',data:months6.map(m=>mOut[m]), backgroundColor:c.red+'aa',   borderRadius:5}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      plugins:{ legend:{labels:{color:c.text,font:{family:"'Geist Mono',monospace",size:10},boxWidth:10}}, tooltip:{callbacks:{label:ctx=>ctx.dataset.label+': Rp '+ctx.raw.toLocaleString('id-ID')}} },
+      scales:{
+        x:{grid:{display:false},ticks:{color:c.text,font:{family:"'Geist Mono',monospace",size:10}}},
+        y:{grid:{color:c.grid},ticks:{color:c.text,font:{family:"'Geist Mono',monospace",size:10},callback:v=>fmtK(v)}}
       }
     }
   });
@@ -850,13 +715,12 @@ function renderCharts() {
 // ══════════════════════════ GOAL MODAL ══════════════════════════
 function openGoalModal(g) {
   editingGoalId = g ? g.id : null;
-  document.getElementById('m-goal-title').textContent = g ? 'Edit Goal' : 'Tambah Goal';
-  document.getElementById('g-title').value = g ? g.title : '';
-  document.getElementById('g-deadline').value = g ? (g.deadline||'') : '';
-  document.getElementById('g-del-btn').style.display = g ? 'block' : 'none';
+  document.getElementById('m-goal-title').textContent    = g ? 'Edit Goal' : 'Tambah Goal';
+  document.getElementById('g-title').value               = g ? g.title : '';
+  document.getElementById('g-deadline').value            = g ? (g.deadline||'') : '';
+  document.getElementById('g-del-btn').style.display     = g ? 'block' : 'none';
   selectedEmoji = g ? (g.emoji||'🎯') : '🎯';
 
-  // Render emoji picker
   const picker = document.getElementById('emoji-picker');
   picker.innerHTML = '';
   EMOJIS.forEach(e => {
@@ -867,32 +731,30 @@ function openGoalModal(g) {
     picker.appendChild(btn);
   });
 
-  // Amount
   const amtInput = document.getElementById('g-amount');
   amtInput.value = g ? (g.goal_amount||0).toLocaleString('id-ID') : '';
   amtInput.dataset.raw = g ? (g.goal_amount||0) : '';
-  document.getElementById('g-amount-display').textContent = g ? 'Rp ' + (g.goal_amount||0).toLocaleString('id-ID') : '';
+  document.getElementById('g-amount-display').textContent = g ? fmt(g.goal_amount||0) : '';
 
   openModal('m-goal');
 }
 
 async function saveGoal() {
-  const title = document.getElementById('g-title').value.trim();
-  const amount = parseInt(document.getElementById('g-amount').dataset.raw || document.getElementById('g-amount').value.replace(/\D/g,''));
+  const title    = document.getElementById('g-title').value.trim();
+  const amount   = parseInt(document.getElementById('g-amount').dataset.raw || document.getElementById('g-amount').value.replace(/\D/g,''));
   const deadline = document.getElementById('g-deadline').value || null;
-  if (!title) return toast('Masukkan nama goal');
+  if (!title)           return toast('Masukkan nama goal');
   if (!amount || amount <= 0) return toast('Masukkan target nominal');
 
-  const payload = { user_id: user.id, title, emoji: selectedEmoji, goal_amount: amount, deadline };
+  const payload = { user_id:user.id, title, emoji:selectedEmoji, goal_amount:amount, deadline };
   let error;
-  if (editingGoalId) {
-    ({ error } = await sb.from('goals').update(payload).eq('id', editingGoalId));
-  } else {
-    ({ error } = await sb.from('goals').insert([payload]));
-  }
+  if (editingGoalId) ({ error } = await sb.from('goals').update(payload).eq('id', editingGoalId));
+  else               ({ error } = await sb.from('goals').insert([payload]));
   if (error) return toast('Gagal: ' + error.message);
+
   toast(editingGoalId ? 'Goal diperbarui!' : 'Goal berhasil ditambahkan!');
   closeModal('m-goal');
+
   if (activeGoal && editingGoalId === activeGoal.id) {
     const { data } = await sb.from('goals').select('*').eq('id', editingGoalId).single();
     activeGoal = { ...activeGoal, ...data };
@@ -902,45 +764,30 @@ async function saveGoal() {
   }
 }
 
+// FIX 4: deleteGoal sekarang benar-benar menghapus dari UI
+// (urutan: tutup modal → reset state → tampilkan dashboard → load ulang data)
 async function deleteGoal() {
-
   if (!editingGoalId) return;
-
   if (!confirm('Hapus goal ini dan semua transaksinya?')) return;
 
-  // hapus semua transaksi terkait dulu
-  const { error: txError } = await sb
-    .from('transactions')
-    .delete()
-    .eq('goal_id', editingGoalId);
+  const { error: txErr } = await sb.from('transactions').delete().eq('goal_id', editingGoalId);
+  if (txErr) { toast('Gagal hapus transaksi: ' + txErr.message); return; }
 
-  if (txError) {
-    console.error(txError);
-    toast('Gagal hapus transaksi');
-    return;
-  }
-
-  // baru hapus goal
-  const { error: goalError } = await sb
-    .from('goals')
-    .delete()
-    .eq('id', editingGoalId);
-
-  if (goalError) {
-    console.error(goalError);
-    toast('Gagal hapus goal');
-    return;
-  }
+  const { error: gErr } = await sb.from('goals').delete().eq('id', editingGoalId);
+  if (gErr) { toast('Gagal hapus goal: ' + gErr.message); return; }
 
   toast('Goal berhasil dihapus');
-
   closeModal('m-goal');
 
-  activeGoal = null;
+  // Reset semua state goal
+  editingGoalId = null;
+  activeGoal    = null;
+  txs           = [];
+  destroyCharts();
 
-  await loadDashboard();
-
+  // Kembali ke dashboard dan refresh data
   showView('dash');
+  await loadDashboard();
 }
 
 // ══════════════════════════ TX MODAL ══════════════════════════
@@ -948,25 +795,20 @@ function openTxModal(idOrNull) {
   editingTxId = idOrNull;
   const tx = typeof idOrNull === 'string' ? txs.find(t => t.id === idOrNull) : null;
 
-  document.getElementById('m-tx-title').textContent = tx ? 'Edit Transaksi' : 'Tambah Transaksi';
-  document.getElementById('tx-del-btn').style.display = tx ? 'block' : 'none';
+  document.getElementById('m-tx-title').textContent      = tx ? 'Edit Transaksi' : 'Tambah Transaksi';
+  document.getElementById('tx-del-btn').style.display    = tx ? 'block' : 'none';
 
-  // Set type
   const type = tx ? (tx.amount >= 0 ? 'plus' : 'minus') : 'plus';
   setTxType(type);
-
-  // Set category
   selectedCat = tx ? (tx.category || '') : '';
   renderCatPills(type);
   if (selectedCat) highlightCat(selectedCat);
 
-  // Amount
   const absAmt = tx ? Math.abs(tx.amount) : '';
   const amtInput = document.getElementById('tx-amount');
   amtInput.value = absAmt ? parseInt(absAmt).toLocaleString('id-ID') : '';
   amtInput.dataset.raw = absAmt || '';
-  document.getElementById('tx-amount-display').textContent = absAmt ? 'Rp ' + parseInt(absAmt).toLocaleString('id-ID') : '';
-
+  document.getElementById('tx-amount-display').textContent = absAmt ? fmt(parseInt(absAmt)) : '';
   document.getElementById('tx-note').value = tx ? (tx.note || '') : '';
 
   openModal('m-tx');
@@ -974,10 +816,9 @@ function openTxModal(idOrNull) {
 
 function setTxType(type) {
   txType = type;
-  document.getElementById('t-plus').className = 'toggle-opt' + (type==='plus' ? ' on-plus' : '');
+  document.getElementById('t-plus').className  = 'toggle-opt' + (type==='plus'  ? ' on-plus'  : '');
   document.getElementById('t-minus').className = 'toggle-opt' + (type==='minus' ? ' on-minus' : '');
-  const saveBtn = document.getElementById('tx-save-btn');
-  saveBtn.style.background = type === 'minus' ? 'var(--red)' : '';
+  document.getElementById('tx-save-btn').style.background = type === 'minus' ? 'var(--red)' : '';
   renderCatPills(type);
 }
 
@@ -1002,16 +843,14 @@ async function saveTx() {
   const rawAmt = parseInt(document.getElementById('tx-amount').dataset.raw || document.getElementById('tx-amount').value.replace(/\D/g,''));
   if (!rawAmt || rawAmt <= 0) return toast('Masukkan nominal yang valid');
   const finalAmt = txType === 'plus' ? rawAmt : -rawAmt;
-  const note = document.getElementById('tx-note').value.trim();
-  const category = selectedCat || (txType === 'plus' ? '📝 Lainnya' : '📝 Lainnya');
+  const note     = document.getElementById('tx-note').value.trim();
+  const category = selectedCat || '📝 Lainnya';
 
   let error;
-  if (editingTxId) {
-    ({ error } = await sb.from('transactions').update({ amount: finalAmt, note: note || null, category }).eq('id', editingTxId));
-  } else {
-    ({ error } = await sb.from('transactions').insert([{ goal_id: activeGoal.id, user_id: user.id, amount: finalAmt, note: note || null, category }]));
-  }
+  if (editingTxId) ({ error } = await sb.from('transactions').update({ amount:finalAmt, note:note||null, category }).eq('id', editingTxId));
+  else             ({ error } = await sb.from('transactions').insert([{ goal_id:activeGoal.id, user_id:user.id, amount:finalAmt, note:note||null, category }]));
   if (error) return toast('Gagal: ' + error.message);
+
   toast(editingTxId ? 'Transaksi diperbarui!' : 'Transaksi disimpan!');
   closeModal('m-tx');
   openGoal(activeGoal);
@@ -1028,11 +867,13 @@ async function deleteTx() {
 // ══════════════════════════ AI INSIGHT ══════════════════════════
 function openAIInsight() {
   const saved = localStorage.getItem('anthropic_key') || '';
-  document.getElementById('insight-key').value = saved;
   document.getElementById('insight-body').innerHTML = `
-    <div class="field"><label>Anthropic API Key</label><input id="insight-key" type="password" placeholder="sk-ant-..." value="${saved}"><div class="input-display">Key disimpan lokal di browser kamu</div></div>
-    <button class="btn btn-primary" onclick="runInsight()">✨ Generate Insight</button>
-  `;
+    <div class="field">
+      <label>Anthropic API Key</label>
+      <input id="insight-key" type="password" placeholder="sk-ant-..." value="${esc(saved)}">
+      <div class="input-display">Key disimpan lokal di browser kamu</div>
+    </div>
+    <button class="btn btn-primary" onclick="runInsight()">✨ Generate Insight</button>`;
   openModal('m-insight');
 }
 
@@ -1042,47 +883,39 @@ async function runInsight() {
   localStorage.setItem('anthropic_key', key);
 
   const body = document.getElementById('insight-body');
-  body.innerHTML = `<div class="insight-loading">🤖 AI sedang menganalisa data kamu...<br><br><div class="loader" style="margin:0 auto"></div></div>`;
+  body.innerHTML = `<div class="insight-loading">🤖 AI sedang menganalisa...<br><br><div class="loader" style="margin:0 auto"></div></div>`;
 
-  const masuk  = txs.filter(t => t.amount >= 0).reduce((s,t) => s+t.amount, 0);
-  const keluar = txs.filter(t => t.amount <  0).reduce((s,t) => s+Math.abs(t.amount), 0);
+  const masuk  = txs.filter(t=>t.amount>=0).reduce((s,t)=>s+t.amount,0);
+  const keluar = txs.filter(t=>t.amount<0).reduce((s,t)=>s+Math.abs(t.amount),0);
   const net    = masuk - keluar;
-  const pct    = activeGoal.goal_amount > 0 ? ((net/activeGoal.goal_amount)*100).toFixed(1) : 0;
+  const pct    = activeGoal.goal_amount>0 ? ((net/activeGoal.goal_amount)*100).toFixed(1) : 0;
   const cats   = {};
-  txs.forEach(t => { const k = t.category||'Lainnya'; cats[k] = (cats[k]||0) + Math.abs(t.amount); });
-  const catStr = Object.entries(cats).map(([k,v]) => `${k}: Rp${v.toLocaleString('id-ID')}`).join(', ');
+  txs.forEach(t=>{ const k=t.category||'Lainnya'; cats[k]=(cats[k]||0)+Math.abs(t.amount); });
+  const catStr = Object.entries(cats).map(([k,v])=>`${k}: Rp${v.toLocaleString('id-ID')}`).join(', ');
 
-  const prompt = `Kamu adalah asisten keuangan personal. Berikan 3 insight singkat dalam Bahasa Indonesia tentang data tabungan ini:
-
+  const prompt = `Kamu adalah asisten keuangan personal. Berikan 3 insight singkat Bahasa Indonesia tentang tabungan ini:
 Goal: ${activeGoal.title}
 Target: Rp ${activeGoal.goal_amount.toLocaleString('id-ID')}
 Progress: ${pct}%
 Terkumpul: Rp ${net.toLocaleString('id-ID')}
-Total masuk: Rp ${masuk.toLocaleString('id-ID')}
-Total keluar: Rp ${keluar.toLocaleString('id-ID')}
-Jumlah transaksi: ${txs.length}
-${activeGoal.deadline ? `Deadline: ${activeGoal.deadline}` : 'Tanpa deadline'}
-Kategori pengeluaran: ${catStr || 'Belum ada'}
-
-Return HANYA JSON array of 3 strings. Setiap string max 120 karakter, dalam Bahasa Indonesia, mulai dengan emoji relevan, actionable. Tidak ada teks lain selain JSON array.`;
+Masuk: Rp ${masuk.toLocaleString('id-ID')}, Keluar: Rp ${keluar.toLocaleString('id-ID')}
+Transaksi: ${txs.length}
+${activeGoal.deadline?`Deadline: ${activeGoal.deadline}`:'Tanpa deadline'}
+Kategori: ${catStr||'Belum ada'}
+Return HANYA JSON array 3 strings. Max 120 karakter tiap string, mulai emoji relevan, actionable. Tidak ada teks lain.`;
 
   try {
     const res = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': key,
-        'anthropic-version': '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true'
-      },
-      body: JSON.stringify({ model: 'claude-sonnet-4-20250514', max_tokens: 500, messages: [{ role: 'user', content: prompt }] })
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':key,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({ model:'claude-sonnet-4-20250514', max_tokens:500, messages:[{role:'user',content:prompt}] })
     });
     if (!res.ok) throw new Error('Status ' + res.status);
     const data = await res.json();
-    const raw = data.content[0].text.replace(/```json|```/g,'').trim();
+    const raw  = data.content[0].text.replace(/```json|```/g,'').trim();
     const insights = JSON.parse(raw);
 
-    body.innerHTML = `<div style="margin-bottom:12px;font-size:11px;color:var(--muted)">Analisa untuk: <strong style="color:var(--text)">${esc(activeGoal.title)}</strong></div>`;
+    body.innerHTML = `<div style="margin-bottom:12px;font-size:11px;color:var(--muted)">Analisa: <strong style="color:var(--text)">${esc(activeGoal.title)}</strong></div>`;
     insights.forEach(ins => {
       const div = document.createElement('div');
       div.className = 'insight-item';
@@ -1091,56 +924,48 @@ Return HANYA JSON array of 3 strings. Setiap string max 120 karakter, dalam Baha
     });
     body.innerHTML += `<button class="btn btn-ghost" style="margin-top:8px" onclick="runInsight()">🔄 Refresh</button>`;
   } catch(e) {
-    console.error(e);
     body.innerHTML = `<div class="insight-item">⚠️ Gagal memuat insight. Cek API key atau coba lagi.</div><button class="btn btn-ghost" style="margin-top:8px" onclick="openAIInsight()">← Coba Lagi</button>`;
   }
 }
 
-// ══════════════════════════ EXPORT / PRINT ══════════════════════════
-function printGoal() {
-  window.print();
-}
-
 // ══════════════════════════ DARK MODE ══════════════════════════
 function toggleTheme() {
-  const cur = document.documentElement.getAttribute('data-theme');
+  const cur  = document.documentElement.getAttribute('data-theme');
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.setAttribute('data-theme', next);
   localStorage.setItem('theme', next);
   updateThemeIcons(next);
-  // Re-render charts with new colors
   if (activeGoal && (chartLine || chartBar)) setTimeout(renderCharts, 50);
 }
 
 function updateThemeIcons(theme) {
   const icon = theme === 'dark' ? '☀️' : '🌙';
-  const btn1 = document.getElementById('theme-btn');
-  const btn2 = document.getElementById('theme-btn2');
-  if (btn1) btn1.textContent = icon;
-  if (btn2) btn2.textContent = icon;
+  ['theme-btn','theme-btn2'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el) el.textContent = icon;
+  });
 }
+
+function printGoal() { window.print(); }
 
 // ══════════════════════════ MODAL HELPERS ══════════════════════════
 function openModal(id)  { document.getElementById(id).classList.add('open'); }
 function closeModal(id) { document.getElementById(id).classList.remove('open'); }
-// Close on overlay click
 document.querySelectorAll('.modal-overlay').forEach(m => {
   m.addEventListener('click', e => { if (e.target === m) m.classList.remove('open'); });
 });
 
-// ══════════════════════════ FORMAT / UTIL ══════════════════════════
-function fmt(n)      { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
-function fmtShort(n) { if (n >= 1e9) return (n/1e9).toFixed(1).replace('.0','') + 'M'; if (n >= 1e6) return (n/1e6).toFixed(1).replace('.0','') + 'jt'; if (n >= 1e3) return (n/1e3).toFixed(0) + 'rb'; return n.toString(); }
-function fmtK(n)     { if (n >= 1e6) return (n/1e6).toFixed(1) + 'jt'; if (n >= 1e3) return (n/1e3).toFixed(0) + 'rb'; return n; }
-function esc(s)      { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+// ══════════════════════════ UTILS ══════════════════════════
+function fmt(n)  { return 'Rp ' + Math.round(n).toLocaleString('id-ID'); }
+function fmtK(n) { if(n>=1e6) return (n/1e6).toFixed(1)+'jt'; if(n>=1e3) return (n/1e3).toFixed(0)+'rb'; return n; }
+function esc(s)  { return (s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 
-// Auto-format Rupiah input
 function fmtInput(el) {
   const raw = el.value.replace(/\D/g,'');
   el.dataset.raw = raw;
   el.value = raw ? parseInt(raw).toLocaleString('id-ID') : '';
   const display = document.getElementById(el.id + '-display');
-  if (display) display.textContent = raw ? 'Rp ' + parseInt(raw).toLocaleString('id-ID') : '';
+  if (display) display.textContent = raw ? fmt(parseInt(raw)) : '';
 }
 
 function toast(msg, dur=2500) {
@@ -1151,7 +976,6 @@ function toast(msg, dur=2500) {
   el._t = setTimeout(() => el.classList.remove('show'), dur);
 }
 
-// ══════════════════════════ START ══════════════════════════
 init();
 </script>
 </body>
