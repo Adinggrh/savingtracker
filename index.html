@@ -766,28 +766,76 @@ async function saveGoal() {
 
 // FIX 4: deleteGoal sekarang benar-benar menghapus dari UI
 // (urutan: tutup modal → reset state → tampilkan dashboard → load ulang data)
+<!-- GANTI SELURUH FUNCTION deleteGoal() LAMA DENGAN INI -->
+
 async function deleteGoal() {
-  if (!editingGoalId) return;
+
+  if (!editingGoalId) {
+    toast('Goal tidak ditemukan');
+    return;
+  }
+
   if (!confirm('Hapus goal ini dan semua transaksinya?')) return;
 
-  const { error: txErr } = await sb.from('transactions').delete().eq('goal_id', editingGoalId);
-  if (txErr) { toast('Gagal hapus transaksi: ' + txErr.message); return; }
+  try {
 
-  const { error: gErr } = await sb.from('goals').delete().eq('id', editingGoalId);
-  if (gErr) { toast('Gagal hapus goal: ' + gErr.message); return; }
+    // HAPUS SEMUA TRANSAKSI
+    const { error: txErr } = await sb
+      .from('transactions')
+      .delete()
+      .eq('goal_id', editingGoalId);
 
-  toast('Goal berhasil dihapus');
-  closeModal('m-goal');
+    if (txErr) {
+      console.error('DELETE TX ERROR:', txErr);
+      toast('Gagal hapus transaksi');
+      return;
+    }
 
-  // Reset semua state goal
-  editingGoalId = null;
-  activeGoal    = null;
-  txs           = [];
-  destroyCharts();
+    // HAPUS GOAL
+    const { data, error: gErr } = await sb
+      .from('goals')
+      .delete()
+      .eq('id', editingGoalId)
+      .select();
 
-  // Kembali ke dashboard dan refresh data
-  showView('dash');
-  await loadDashboard();
+    console.log('DELETE GOAL RESULT:', data);
+    console.log('DELETE GOAL ERROR:', gErr);
+
+    if (gErr) {
+      toast('Gagal hapus goal: ' + gErr.message);
+      return;
+    }
+
+    // JIKA TIDAK ADA DATA TERHAPUS
+    if (!data || data.length === 0) {
+      toast('Goal gagal dihapus (RLS / policy bermasalah)');
+      return;
+    }
+
+    // RESET STATE FRONTEND
+    editingGoalId = null;
+    activeGoal = null;
+    txs = [];
+
+    destroyCharts();
+
+    // TUTUP MODAL
+    closeModal('m-goal');
+
+    // KEMBALI KE DASHBOARD
+    showView('dash');
+
+    // REFRESH DATA
+    await loadDashboard();
+
+    toast('Goal berhasil dihapus ✅');
+
+  } catch (err) {
+
+    console.error(err);
+    toast('Terjadi error');
+
+  }
 }
 
 // ══════════════════════════ TX MODAL ══════════════════════════
