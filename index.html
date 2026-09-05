@@ -56,6 +56,15 @@ input,select{font-family:'Geist Mono',monospace}
 .auth-tabs{display:flex;gap:6px;margin-bottom:24px}
 .auth-tab{flex:1;padding:9px;background:var(--surface2);border:1px solid var(--border);border-radius:10px;font-size:11px;color:var(--muted);transition:.2s}
 .auth-tab.active{background:var(--accent);color:var(--accent-text);border-color:var(--accent)}
+.auth-link{display:block;text-align:right;width:100%;background:none;border:none;font-size:11px;color:var(--muted);margin:-6px 0 14px;padding:0}
+.auth-link:hover{color:var(--text)}
+.app-credit{font-size:10px;color:var(--muted);text-align:center;margin-top:18px;letter-spacing:.02em}
+.app-credit strong{color:var(--text);font-weight:500}
+
+.pw-wrap{position:relative}
+.pw-wrap input{padding-right:40px}
+.pw-toggle{position:absolute;right:6px;top:50%;transform:translateY(-50%);background:none;border:none;font-size:15px;color:var(--muted);padding:6px;line-height:1;border-radius:6px;transition:.2s}
+.pw-toggle:hover{color:var(--text)}
 
 .field{display:flex;flex-direction:column;gap:5px;margin-bottom:14px}
 .field label{font-size:10px;text-transform:uppercase;color:var(--muted);letter-spacing:.06em}
@@ -225,8 +234,36 @@ input,select{font-family:'Geist Mono',monospace}
       <button class="auth-tab" id="tab-reg" onclick="switchAuthTab('reg')">Daftar</button>
     </div>
     <div class="field"><label>Email</label><input id="auth-email" type="email" placeholder="email@kamu.com"></div>
-    <div class="field"><label>Password</label><input id="auth-pass" type="password" placeholder="••••••••"></div>
+    <div class="field">
+      <label>Password</label>
+      <div class="pw-wrap">
+        <input id="auth-pass" type="password" placeholder="••••••••">
+        <button type="button" class="pw-toggle" onclick="togglePw('auth-pass', this)">👁️</button>
+      </div>
+    </div>
+    <button type="button" class="auth-link" id="forgot-link" onclick="openForgotPassword()">Lupa password?</button>
     <button class="btn btn-primary" id="auth-submit" onclick="doAuth()">Masuk</button>
+    <div class="app-credit">Dibuat dengan ❤️ oleh <strong>Adi Nugroho</strong></div>
+  </div>
+</div>
+</div>
+
+<!-- VIEW: RESET PASSWORD -->
+<div id="v-reset" class="view">
+<div class="wrap">
+  <div class="page-title" style="margin-top:40px">
+    <div class="page-label">Reset Password</div>
+    <h1 class="page-h1">Buat Password<br><em>Baru.</em></h1>
+  </div>
+  <div class="auth-box">
+    <div class="field">
+      <label>Password Baru</label>
+      <div class="pw-wrap">
+        <input id="reset-pass" type="password" placeholder="Minimal 6 karakter">
+        <button type="button" class="pw-toggle" onclick="togglePw('reset-pass', this)">👁️</button>
+      </div>
+    </div>
+    <button class="btn btn-primary" id="reset-submit" onclick="doResetPassword()">Simpan Password Baru</button>
   </div>
 </div>
 </div>
@@ -414,7 +451,17 @@ async function init() {
 
   const { data: { session } } = await sb.auth.getSession();
   handleSession(session);
-  sb.auth.onAuthStateChange((_e, s) => handleSession(s));
+
+  // NOTE: event 'PASSWORD_RECOVERY' dikirim Supabase saat user klik link
+  // reset password dari email dan kembali ke halaman ini.
+  sb.auth.onAuthStateChange((event, s) => {
+    if (event === 'PASSWORD_RECOVERY') {
+      document.getElementById('loading').style.display = 'none';
+      showView('reset');
+      return;
+    }
+    handleSession(s);
+  });
 }
 
 function handleSession(session) {
@@ -444,16 +491,14 @@ function goBack() {
 }
 
 // ══════════════════════════ AUTH ══════════════════════════
-// FIX 1: switchAuthTab itu HILANG di versi sebelumnya
 function switchAuthTab(mode) {
   const isLogin = mode === 'login';
   document.getElementById('tab-login').classList.toggle('active', isLogin);
   document.getElementById('tab-reg').classList.toggle('active', !isLogin);
   document.getElementById('auth-submit').textContent = isLogin ? 'Masuk' : 'Daftar';
+  document.getElementById('forgot-link').style.display = isLogin ? 'block' : 'none';
 }
 
-// FIX 2: doAuth() itu RUSAK di versi sebelumnya — kodenya melayang di luar function
-// sehingga script langsung crash saat halaman dibuka → loading terus
 async function doAuth() {
   const email = document.getElementById('auth-email').value.trim();
   const pass  = document.getElementById('auth-pass').value;
@@ -484,9 +529,52 @@ async function doAuth() {
   }
 }
 
-// FIX 3: doLogout() HILANG di versi sebelumnya
 async function doLogout() {
   await sb.auth.signOut();
+}
+
+// ══════════════════════════ LUPA PASSWORD ══════════════════════════
+async function openForgotPassword() {
+  let email = document.getElementById('auth-email').value.trim();
+  if (!email) {
+    email = prompt('Masukkan email kamu untuk reset password:');
+    if (!email) return;
+  }
+  toast('Mengirim link reset...');
+  const { error } = await sb.auth.resetPasswordForEmail(email, {
+    redirectTo: window.location.href
+  });
+  if (error) toast(error.message);
+  else toast('Link reset password sudah dikirim ke email kamu 📬');
+}
+
+async function doResetPassword() {
+  const pass = document.getElementById('reset-pass').value;
+  if (!pass || pass.length < 6) return toast('Password minimal 6 karakter');
+
+  const btn = document.getElementById('reset-submit');
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  const { error } = await sb.auth.updateUser({ password: pass });
+
+  btn.textContent = 'Simpan Password Baru';
+  btn.disabled = false;
+
+  if (error) return toast(error.message);
+
+  toast('Password berhasil diubah! Silakan login ulang.');
+  await sb.auth.signOut();
+  document.getElementById('reset-pass').value = '';
+  showView('auth');
+}
+
+// ══════════════════════════ LIHAT / SEMBUNYIKAN PASSWORD ══════════════════════════
+function togglePw(inputId, btn) {
+  const input = document.getElementById(inputId);
+  const showing = input.type === 'text';
+  input.type = showing ? 'password' : 'text';
+  btn.textContent = showing ? '👁️' : '🙈';
 }
 
 // ══════════════════════════ DASHBOARD ══════════════════════════
@@ -764,10 +852,7 @@ async function saveGoal() {
   }
 }
 
-// FIX 4: deleteGoal sekarang benar-benar menghapus dari UI
-// (urutan: tutup modal → reset state → tampilkan dashboard → load ulang data)
-<!-- GANTI SELURUH FUNCTION deleteGoal() LAMA DENGAN INI -->
-
+// deleteGoal: urutan → hapus transaksi → hapus goal → reset state → dashboard → reload data
 async function deleteGoal() {
 
   if (!editingGoalId) {
